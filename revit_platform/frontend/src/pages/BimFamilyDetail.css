@@ -48,13 +48,14 @@
     text-decoration: underline;
 }
 
-/* Галерея изображений - увеличенный размер */
+/* Галерея изображений - первая колонка */
 .family-gallery {
     background: white;
     border-radius: 12px;
-    padding: 30px;
+    padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    height: 100%;
 }
 
 .main-image-container {
@@ -69,14 +70,35 @@
 .main-image {
     width: 100%;
     height: auto;
-    max-height: 700px;
+    max-height: 400px;
     object-fit: contain;
-    background: #f8f9fa;
+    background: white;
+    border-radius: 8px;
 }
 
 /* Вертикальная галерея миниатюр */
 .thumbnail-gallery-vertical {
-    margin-top: 20px;
+    margin-top: 15px;
+}
+
+/* Основная информация о семействе - вторая колонка */
+.family-info {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+/* Дополнительная информация - третья колонка */
+.family-details {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    height: 100%;
 }
 
 .gallery-title {
@@ -89,9 +111,9 @@
 
 .thumbnails-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
-    max-height: 400px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    max-height: 300px;
     overflow-y: auto;
     padding: 10px;
     background: #f8f9fa;
@@ -100,12 +122,12 @@
 
 .thumbnail-vertical {
     position: relative;
-    width: 100%;
-    height: 120px;
-    border-radius: 8px;
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
     overflow: hidden;
     cursor: pointer;
-    border: 3px solid transparent;
+    border: 2px solid transparent;
     transition: all 0.3s ease;
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -157,28 +179,26 @@
 .family-info {
     background: white;
     border-radius: 12px;
-    padding: 30px;
+    padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 20px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
+    margin-bottom: 20px;
+    height: 100%;
 }
 
 .family-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #212529;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     line-height: 1.3;
 }
 
 .family-meta {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid #e9ecef;
 }
 
@@ -186,8 +206,8 @@
     display: flex;
     align-items: center;
     color: #6c757d;
-    font-size: 1rem;
-    padding: 8px 12px;
+    font-size: 0.9rem;
+    padding: 6px 10px;
     background: #f8f9fa;
     border-radius: 6px;
 }
@@ -201,8 +221,8 @@
 
 /* Рейтинг */
 .family-rating {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid #e9ecef;
 }
 
@@ -239,7 +259,7 @@
 }
 
 .family-description {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .family-description h5 {
@@ -253,12 +273,14 @@
     line-height: 1.7;
     margin-bottom: 0;
     font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .technical-specs,
 .catalog-items,
 .company-info {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .technical-specs h5,
@@ -278,16 +300,18 @@
 .spec-item {
     display: flex;
     justify-content: space-between;
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: #f8f9fa;
-    border-radius: 8px;
-    font-size: 1rem;
-    border-left: 4px solid #007bff;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    border-left: 3px solid #007bff;
 }
 
 .spec-key {
     color: #6c757d;
     font-weight: 500;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .spec-value {
@@ -296,6 +320,7 @@
     text-align: right;
     max-width: 60%;
     word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .catalog-tags {
@@ -321,6 +346,37 @@
 
 .company-details strong {
     color: #495057;
+}
+
+.company-website {
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.company-website:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Документация */
+.documentation-info {
+    margin-bottom: 20px;
+}
+
+.documentation-info h5 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.documentation-details p {
+    color: #6c757d;
+    line-height: 1.7;
+    margin-bottom: 0;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .family-actions {
