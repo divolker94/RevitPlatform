@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>nehnonikol</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="50" height="50"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="nehnonikol">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="Rectangle-Copy"></g>
+            <g id="Group-Copy-3" mask="url(#mask-2)">
+                <g transform="translate(5.000000, 4.000000)" id="img/vector/exCompanyLogo/a101-Copy">
+                    <rect id="companyLogo" x="0" y="0" width="40" height="40"></rect>
+                    <g id="Group" transform="translate(4.234470, 4.667317)">
+                        <polygon id="Path" fill="#D8232A" points="30.791923 24.9622938 24.6340598 31.2017114 1.85465896 31.2035827 0 29.3226539 0 6.24040832 6.15862358 0 28.937264 0 30.791923 1.87905751"></polygon>
+                        <polygon id="Path" fill="#FFFFFE" points="28.937264 3.30238579e-05 22.0117048 7.01826328 22.0117048 17.2620438 16.3383364 9.36163623 4.37957188 9.36163623 4.37957188 11.8440396 7.9045428 11.8440396 7.9045428 21.313851 0.000325893333 29.3226869 0.000325893333 31.2036158 1.85465896 31.2017444 10.5615511 22.3792006 10.5615511 11.8440396 14.0846753 11.8440396 14.0846753 21.8413521 16.7077908 21.8413521 16.7077908 13.9411647 22.3814851 21.8413521 24.6341684 21.8413521 24.6341684 8.1192787 30.7921402 1.87909053 30.791923 3.30238579e-05"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

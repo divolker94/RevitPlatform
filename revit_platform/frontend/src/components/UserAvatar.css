@@ -1,0 +1,22 @@
+.user-avatar-container {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.user-name {
+    font-size: 14px;
+    color: #333;
+}

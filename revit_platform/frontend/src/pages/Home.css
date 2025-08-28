@@ -1,0 +1,411 @@
+.home-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+/* Фоновое изображение */
+.home-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.home-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../public/images/background/architecture-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+}
+
+.hero-section {
+    background-color: rgba(248, 249, 250, 0.95);
+    padding: 4rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 20px 20px;
+    backdrop-filter: blur(5px);
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0,123,255,0.1) 0%, rgba(0,123,255,0) 100%);
+    z-index: 0;
+}
+
+.hero-section h1 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #ffeb3b;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero-section .lead {
+    color: #6c757d;
+    font-size: 1.25rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+
+.greeting-text {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.95);
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.card-title svg {
+    color: #007bff;
+    font-size: 1.5rem;
+}
+
+.card-text {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.cta-section {
+    background-color: rgba(233, 236, 239, 0.95);
+    padding: 4rem 0;
+    margin-top: 3rem;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+}
+
+
+
+
+
+.testimonials-section {
+    background-color: rgba(248, 249, 250, 0.95);
+    padding: 4rem 0;
+    margin-top: 3rem;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+}
+
+
+
+.btn-primary {
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.cta-button:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-outline-primary {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid #007bff;
+    color: #007bff;
+    font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.2);
+    background: #007bff;
+    color: white;
+}
+
+/* Стили для кнопки CTA */
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.cta-button:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Стили для кнопки в hero-секции */
+.hero-section .cta-button {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    padding: 1.2rem 3rem;
+}
+
+
+.display-4 {
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+/* Стили для заголовков секций */
+.testimonials-section h2,
+.cta-section h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.testimonials-section .lead,
+.cta-section .lead {
+    color: #6c757d;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+/* Стили для кнопки в CTA секции */
+.cta-section .btn-primary {
+    background: #007bff;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+.cta-section .btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 0;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .lead {
+        font-size: 1.1rem;
+    }
+
+
+
+    .greeting-text {
+        font-size: 1.1rem;
+    }
+
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+
+    
+    .cta-button {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-section .container > * {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.card {
+    animation: fadeIn 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+/* Стили для отзывов */
+.testimonial-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.testimonial-content {
+    text-align: left;
+}
+
+.testimonial-quote {
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-quote i {
+    font-size: 2rem;
+    color: #3498db;
+    opacity: 0.7;
+}
+
+.testimonial-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    position: relative;
+}
+
+.testimonial-author h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.testimonial-author span {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Адаптивность для отзывов */
+@media (max-width: 768px) {
+    .testimonial-card {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .testimonial-text {
+        font-size: 0.95rem;
+    }
+    
+    .testimonial-author h5 {
+        font-size: 1rem;
+    }
+    
+    .testimonial-author span {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

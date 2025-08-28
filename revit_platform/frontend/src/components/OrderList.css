@@ -1,0 +1,123 @@
+.order-list-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.order-list-container h2 {
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.order-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.order-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.order-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: #e9ecef;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-item .label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.detail-item .value {
+    color: #212529;
+    font-weight: 500;
+}
+
+.order-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.view {
+    background: #007bff;
+    color: white;
+}
+
+.action-button.view:hover {
+    background: #0056b3;
+}
+
+.action-button.assign {
+    background: #28a745;
+    color: white;
+}
+
+.action-button.assign:hover {
+    background: #218838;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .order-list-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .order-details {
+        grid-template-columns: 1fr;
+    }
+
+    .order-actions {
+        flex-direction: column;
+    }
+
+    .action-button {
+        width: 100%;
+    }
+}
