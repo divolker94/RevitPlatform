@@ -59,3 +59,7 @@ postgres_data.json
 families_*.csv
 family_images_*.csv
 bim_families_complete.json
+
+# README files to avoid conflicts
+README.md
+*README*
