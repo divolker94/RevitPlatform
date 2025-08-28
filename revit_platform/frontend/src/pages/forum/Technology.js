@@ -1,56 +1,136 @@
 import React from 'react';
-import '../Forum.css';
+import { useNavigate } from 'react-router-dom';
+import './News.css';
 
 function Technology() {
+    const navigate = useNavigate();
+
     const techArticles = [
         {
-            id: 3,
+            id: 1,
             title: 'BIM-технологии в современной архитектуре',
-            date: '2024-02-25',
-            author: 'BIM-менеджер',
-            preview: 'Как BIM меняет подход к проектированию зданий...',
-            image: '/images/blog/bim-tech.jpg',
+            preview: 'Анализ влияния BIM-технологий на современную архитектуру.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
+            category: 'Технологии'
+        },
+        {
+            id: 2,
+            title: 'Интеграция Revit с другими BIM-инструментами',
+            preview: 'Обзор возможностей интеграции Revit с другими BIM-инструментами.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
+            category: 'Технологии'
+        },
+        {
+            id: 3,
+            title: 'Автоматизация процессов в Revit с помощью Dynamo',
+            preview: 'Введение в автоматизацию процессов в Revit с помощью Dynamo.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
+            category: 'Технологии'
+        },
+        {
+            id: 4,
+            title: 'Облачные BIM-решения',
+            preview: 'Современные облачные решения для BIM-моделирования.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
+            category: 'Технологии'
+        },
+        {
+            id: 5,
+            title: 'VR и AR в архитектурном проектировании',
+            preview: 'Применение виртуальной и дополненной реальности в архитектуре.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
             category: 'Технологии'
         },
         {
             id: 6,
-            title: 'Интеграция Revit с другими BIM-инструментами',
-            date: '2024-02-10',
-            author: 'Системный архитектор',
-            preview: 'Обзор возможностей интеграции Revit с другими инструментами BIM...',
-            image: '/images/blog/integration.jpg',
+            title: 'Искусственный интеллект в BIM',
+            preview: 'Перспективы использования ИИ в BIM-моделировании.',
+            image: '/images/forum/BIM-технологии в современной архитектуре.png',
             category: 'Технологии'
         }
     ];
 
+    const handleCategoryClick = (category) => {
+        switch(category) {
+            case 'Новости':
+                navigate('/forum/news');
+                break;
+            case 'Советы':
+                navigate('/forum/tips');
+                break;
+            case 'Технологии':
+                navigate('/forum/technology');
+                break;
+            case 'Обучение':
+                navigate('/forum/training');
+                break;
+            default:
+                navigate('/forum');
+        }
+    };
+
     return (
-        <div className="forum-container">
-            <div className="forum-header">
-                <h1>Технологии в Revit</h1>
-                <p>Инновации и технологические решения</p>
+        <div className="forum-page">
+            <div className="forum-background"></div>
+            <div className="forum-background-overlay"></div>
+
+            {/* Заголовок страницы */}
+            <div className="forum-page-header">
+                <h1>Технологии</h1>
+                <p>Современные технологии и инновации в BIM-моделировании</p>
             </div>
 
+            {/* Кнопки категорий */}
+            <div className="forum-categories">
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Новости')}
+                >
+                    Новости
+                </button>
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Советы')}
+                >
+                    Советы
+                </button>
+                <button 
+                    className="category-button active"
+                    onClick={() => handleCategoryClick('Технологии')}
+                >
+                    Технологии
+                </button>
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Обучение')}
+                >
+                    Обучение
+                </button>
+            </div>
+
+            {/* Сетка технологий */}
             <div className="forum-grid">
                 {techArticles.map(article => (
-                    <article key={article.id} className="forum-card">
+                    <div key={article.id} className="forum-card">
                         <div className="forum-card-image">
                             <img src={article.image} alt={article.title} />
-                            <span className="forum-category">{article.category}</span>
                         </div>
                         <div className="forum-card-content">
+                            <span className="forum-category">{article.category}</span>
                             <h2>{article.title}</h2>
-                            <p className="forum-preview">{article.preview}</p>
-                            <div className="forum-meta">
-                                <span className="forum-author">
-                                    <i className="fas fa-user"></i> {article.author}
-                                </span>
-                                <span className="forum-date">
-                                    <i className="fas fa-calendar"></i> {new Date(article.date).toLocaleDateString()}
-                                </span>
+                            <div className="forum-preview">
+                                <p>{article.preview}</p>
                             </div>
-                            <button className="read-more">Перейти к обсуждению</button>
+                            <div className="read-more">
+                                <button 
+                                    className="read-more-button"
+                                    onClick={() => navigate(`/forum/post/${article.id}`)}
+                                >
+                                    Перейти к обсуждению
+                                </button>
+                            </div>
                         </div>
-                    </article>
+                    </div>
                 ))}
             </div>
         </div>

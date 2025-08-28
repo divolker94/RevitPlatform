@@ -10,6 +10,11 @@ import ProjectDetail from './pages/ProjectDetail';
 import Families from './pages/Families';
 import BimFamilyDetail from './pages/BimFamilyDetail';
 import Forum from './pages/Forum';
+import News from './pages/forum/News';
+import Tips from './pages/forum/Tips';
+import Technology from './pages/forum/Technology';
+import Training from './pages/forum/Training';
+import ForumPostDetail from './pages/ForumPostDetail';
 import Profile from './pages/Profile';
 import MyFamilies from './pages/MyFamilies';
 import About from './pages/About';
@@ -52,7 +57,12 @@ function App() {
                         <Route path="/families" element={<Families />} />
                         <Route path="/bim-families/:id" element={<BimFamilyDetail />} />
                         <Route path="/blog" element={<Forum />} />
-                        <Route path="/forum/news" element={<Forum />} />
+                        <Route path="/forum" element={<Forum />} />
+                        <Route path="/forum/news" element={<News />} />
+                        <Route path="/forum/tips" element={<Tips />} />
+                        <Route path="/forum/technology" element={<Technology />} />
+                        <Route path="/forum/training" element={<Training />} />
+                        <Route path="/forum/post/:id" element={<ForumPostDetail />} />
 
                         {/* Previously protected routes, now public */}
                         <Route path="/projects" element={<Projects />} />
