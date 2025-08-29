@@ -47,7 +47,7 @@ function BimFamilyDetail() {
         if (!items || !Array.isArray(items)) return [];
         return items;
     };
-
+    
     const formatBasicSpecs = (specs) => {
         if (!specs || typeof specs === 'string') return {};
         
@@ -180,7 +180,7 @@ function BimFamilyDetail() {
                                 <h5>Описание</h5>
                                 <p>{family.description}</p>
                             </div>
-
+                            
                             <div className="family-meta">
                                 {family.total_images > 0 && (
                                     <span className="meta-item">
@@ -228,7 +228,7 @@ function BimFamilyDetail() {
                                 </button>
                             </div>
                         </div>
-                    </div>
+                            </div>
 
                     {/* Дополнительная информация - третья колонка */}
                     <div className="col-lg-4">

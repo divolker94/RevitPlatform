@@ -74,7 +74,13 @@ function Profile() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setProfileData(data);
+                // Объединяем данные пользователя с данными профиля специалиста
+                setProfileData({
+                    ...data,
+                    first_name: user.first_name || data.first_name || '',
+                    last_name: user.last_name || data.last_name || '',
+                    phone: user.phone || data.phone || ''
+                });
             }
         } catch (error) {
             console.error('Error loading specialist profile:', error);
@@ -83,7 +89,7 @@ function Profile() {
 
     const loadLegalEntityProfile = async (token) => {
         try {
-            const response = await fetch('http://localhost:8000/api/clients/legal/', {
+            const response = await fetch('http://localhost:8000/api/clients/legal-entities/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -224,31 +230,84 @@ function Profile() {
 
             // Затем обновляем профиль
             if (user.user_type === 'specialist') {
+                // Для специалистов добавляем значения по умолчанию для обязательных полей
+                const specialistData = {
+                    ...profileData,
+                    specialist_type: profileData.specialist_type || 'executor',
+                    specialization: profileData.specialization || 'Не указано',
+                    experience: profileData.experience || 'Не указано',
+                    about: profileData.about || 'Не указано',
+                    availability: profileData.availability || 'Не указано',
+                    portfolio: profileData.portfolio || '', // Оставляем пустым для URL поля
+                    certificates: profileData.certificates || 'Не указано'
+                };
+                
+                // Сначала пытаемся обновить существующий профиль
                 response = await fetch('http://localhost:8000/api/specialists/me/', {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(profileData),
+                    body: JSON.stringify(specialistData),
                 });
+                
+                // Если профиль не существует, создаем новый
+                if (response.status === 404) {
+                    response = await fetch('http://localhost:8000/api/specialists/', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(specialistData),
+                    });
+                }
             } else if (user.user_type === 'legal') {
-                response = await fetch(`http://localhost:8000/api/clients/legal/${profileData.id}/`, {
+                // Для юридических лиц добавляем значения по умолчанию для обязательных полей
+                const legalData = {
+                    ...profileData,
+                    client_type: profileData.client_type || 'customer',
+                    company_name: profileData.company_name || 'Не указано',
+                    inn: profileData.inn || 'Не указано',
+                    kpp: profileData.kpp || 'Не указано',
+                    ogrn: profileData.ogrn || 'Не указано',
+                    contact_person: profileData.contact_person || 'Не указано',
+                    phone: profileData.phone || 'Не указано',
+                    email: profileData.email || 'Не указано',
+                    bik: profileData.bik || 'Не указано',
+                    account_number: profileData.account_number || 'Не указано',
+                    bank_name: profileData.bank_name || 'Не указано'
+                };
+                
+                response = await fetch(`http://localhost:8000/api/clients/legal-entities/${profileData.id}/`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(profileData),
+                    body: JSON.stringify(legalData),
                 });
             } else if (user.user_type === 'individual') {
+                // Для физических лиц добавляем значения по умолчанию для обязательных полей
+                const individualData = {
+                    ...profileData,
+                    client_type: profileData.client_type || 'customer',
+                    first_name: profileData.first_name || 'Не указано',
+                    last_name: profileData.last_name || 'Не указано',
+                    middle_name: profileData.middle_name || 'Не указано',
+                    phone: profileData.phone || 'Не указано',
+                    birth_date: profileData.birth_date || null,
+                    address: profileData.address || 'Не указано'
+                };
+                
                 response = await fetch(`http://localhost:8000/api/clients/individuals/${profileData.id}/`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(profileData),
+                    body: JSON.stringify(individualData),
                 });
             }
 
@@ -339,6 +398,19 @@ function Profile() {
                     <div className="profile-section">
                         <h4><FaBuilding /> Профессиональная информация</h4>
                         <div className="form-group">
+                            <label>Тип специалиста</label>
+                            <select
+                                name="specialist_type"
+                                value={profileData.specialist_type || 'executor'}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                            >
+                                <option value="executor">Исполнитель</option>
+                                <option value="manager">BIM-менеджер</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
                             <label>Специализация</label>
                             <input
                                 type="text"
@@ -382,6 +454,42 @@ function Profile() {
                                 rows="4"
                             />
                         </div>
+                        <div className="form-group">
+                            <label>Доступность</label>
+                            <input
+                                type="text"
+                                name="availability"
+                                value={profileData.availability || ''}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                                placeholder="Например: Полная занятость, Частичная занятость"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Портфолио (ссылка)</label>
+                            <input
+                                type="url"
+                                name="portfolio"
+                                value={profileData.portfolio || ''}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                                placeholder="https://example.com/portfolio"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Сертификаты</label>
+                            <textarea
+                                name="certificates"
+                                value={profileData.certificates || ''}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                                rows="3"
+                                placeholder="Полученные сертификаты и квалификации"
+                            />
+                        </div>
                     </div>
                 </>
             );
@@ -390,6 +498,19 @@ function Profile() {
                 <>
                     <div className="profile-section">
                         <h4><FaBuilding /> Информация об организации</h4>
+                        <div className="form-group">
+                            <label>Тип клиента</label>
+                            <select
+                                name="client_type"
+                                value={profileData.client_type || 'customer'}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                            >
+                                <option value="customer">Заказчик</option>
+                                <option value="contractor">Подрядчик</option>
+                            </select>
+                        </div>
                         <div className="form-group">
                             <label>Наименование организации</label>
                             <input
@@ -516,6 +637,19 @@ function Profile() {
                 <>
                     <div className="profile-section">
                         <h4><FaUser /> Личная информация</h4>
+                        <div className="form-group">
+                            <label>Тип клиента</label>
+                            <select
+                                name="client_type"
+                                value={profileData.client_type || 'customer'}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                className="form-control"
+                            >
+                                <option value="customer">Заказчик</option>
+                                <option value="contractor">Подрядчик</option>
+                            </select>
+                        </div>
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Имя</label>

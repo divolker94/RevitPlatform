@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { FaDownload } from 'react-icons/fa';
 import './BimFamilyCard.css';
+import AddToOrderButton from './AddToOrderButton';
 
 const BimFamilyCard = ({ family, onCardClick }) => {
     const [imageError, setImageError] = useState(false);
@@ -15,17 +17,18 @@ const BimFamilyCard = ({ family, onCardClick }) => {
     console.log('BimFamilyCard render:', {
         familyName: family.name,
         familyId: family.id,
-        externalId: family.external_id,
-        totalImages: family.total_images,
+        category: family.category?.name,
+        familyType: family.family_type,
+        manufacturer: family.manufacturer,
         imagesCount: family.images?.length || 0,
         previewImage: previewImage,
-        previewImagePath: previewImage?.local_path
+        previewImagePath: previewImage?.image
     });
     
     const handleImageError = (e) => {
         console.log('Image load error for:', e.target.src);
         console.log('Family:', family.name);
-        console.log('Image path:', previewImage?.local_path);
+        console.log('Image path:', previewImage?.image);
         setImageError(true);
         e.target.src = '/images/placeholder-family.png';
     };
@@ -65,19 +68,19 @@ const BimFamilyCard = ({ family, onCardClick }) => {
         }
     };
     
-    // Получаем категорию из технических характеристик
+    // Получаем категорию из модели
     const getCategory = () => {
-        if (!family.technical_specs) return null;
-        
-        try {
-            const specs = typeof family.technical_specs === 'string' 
-                ? JSON.parse(family.technical_specs) 
-                : family.technical_specs;
-            
-            return specs.Категория || specs.Тип || null;
-        } catch {
-            return null;
+        // Теперь категория хранится в поле category
+        if (family.category?.name) {
+            return family.category.name;
         }
+        
+        // Fallback на family_type если категория не указана
+        if (family.family_type && family.family_type !== 'Не указан') {
+            return family.family_type;
+        }
+        
+        return null;
     };
     
     // Функция для получения правильного пути к изображению
@@ -97,9 +100,20 @@ const BimFamilyCard = ({ family, onCardClick }) => {
         // Просто добавляем слеш в начало
         const finalPath = `/${imagePath}`;
         console.log('getImagePath: Constructed path:', finalPath);
-        console.log('getImagePath: Original path:', imagePath);
         
         return finalPath;
+    };
+    
+    // Обработчик скачивания
+    const handleDownload = (e) => {
+        e.stopPropagation(); // Предотвращаем всплытие события
+        
+        // Здесь можно добавить логику скачивания
+        // Например, открыть ссылку на скачивание или показать модальное окно
+        console.log('Download requested for:', family.name);
+        
+        // Временное решение - показываем уведомление
+        alert(`Скачивание ${family.name} будет доступно в ближайшее время`);
     };
     
     // Функция для установки рейтинга
@@ -160,7 +174,7 @@ const BimFamilyCard = ({ family, onCardClick }) => {
             <div className="family-image-container">
                 {previewImage ? (
                     <img 
-                        src={getImagePath(previewImage.local_path)}
+                        src={getImagePath(previewImage.image)}
                         alt={family.name}
                         className="family-image"
                         onError={handleImageError}
@@ -185,10 +199,15 @@ const BimFamilyCard = ({ family, onCardClick }) => {
             </div>
             
             <div className="family-info">
-                {/* Показываем тип только если есть категория */}
-                {getCategory() && (
-                    <p className="family-type">{getCategory()}</p>
-                )}
+                {/* Показываем тип и производителя */}
+                <div className="family-meta">
+                    {family.family_type && family.family_type !== 'Не указан' && (
+                        <p className="family-type">{family.family_type}</p>
+                    )}
+                    {family.manufacturer && family.manufacturer !== 'Не указан' && (
+                        <p className="family-manufacturer">{family.manufacturer}</p>
+                    )}
+                </div>
                 
                 {/* Компактная компоновка: описание и статистика */}
                 <div className="family-compact-layout">
@@ -208,11 +227,11 @@ const BimFamilyCard = ({ family, onCardClick }) => {
                             </span>
                             <span className="stat-item">
                                 <i className="fas fa-download"></i>
-                                {family.downloads || 0}
+                                {family.downloads_count || 0}
                             </span>
                             <span className="stat-item">
-                                <i className="fas fa-comment"></i>
-                                {family.comments || 0}
+                                <i className="fas fa-star"></i>
+                                {family.rating || 0}
                             </span>
                         </div>
                         
@@ -229,6 +248,24 @@ const BimFamilyCard = ({ family, onCardClick }) => {
                             <span className="rating-average">{family.rating || 0}</span>
                         </div>
                     </div>
+                </div>
+                <div className="family-actions">
+                    <button 
+                        className="download-btn"
+                        onClick={handleDownload}
+                        title="Скачать"
+                    >
+                        <FaDownload />
+                        <span>Скачать</span>
+                    </button>
+                    <AddToOrderButton
+                        itemType="bim_family"
+                        itemId={family.id}
+                        itemName={family.name}
+                        itemCost={family.cost}
+                        itemArea={family.area}
+                        itemCategory={family.category?.name || family.family_type}
+                    />
                 </div>
             </div>
         </div>

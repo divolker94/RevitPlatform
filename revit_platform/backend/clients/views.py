@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from accounts.models import User
 from .models import IndividualClient, LegalEntityClient
-from .serializers import LegalEntitySerializer, IndividualClientSerializer
+from .serializers import LegalEntityClientSerializer, IndividualClientSerializer
 
 class LegalEntityViewSet(viewsets.ModelViewSet):
-    serializer_class = LegalEntitySerializer
+    serializer_class = LegalEntityClientSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

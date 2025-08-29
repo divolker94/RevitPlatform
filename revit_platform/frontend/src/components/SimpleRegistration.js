@@ -9,7 +9,8 @@ function SimpleRegistration({ onSubmit, errors = {} }) {
         password: '',
         re_password: '',
         first_name: '',
-        last_name: ''
+        last_name: '',
+        user_type: 'specialist'  // По умолчанию BIM-специалист
     });
 
     const [loading, setLoading] = useState(false);
@@ -27,8 +28,10 @@ function SimpleRegistration({ onSubmit, errors = {} }) {
         setLoading(true);
         try {
             await onSubmit(formData);
-            // Redirect to UserTypeSelect after successful registration
-            navigate('/select-user-type');
+            // Если тип пользователя уже выбран, не перенаправляем
+            if (formData.user_type !== 'specialist') {
+                navigate('/select-user-type');
+            }
         } catch (err) {
             if (err.response?.data) {
                 const errorMessage = Object.values(err.response.data).flat().join(', ');
@@ -75,6 +78,20 @@ function SimpleRegistration({ onSubmit, errors = {} }) {
                     required 
                 />
                 {errors.last_name && <span className="field-error">{errors.last_name}</span>}
+            </div>
+
+            <div className="form-group">
+                <label>Тип пользователя</label>
+                <select 
+                    name="user_type" 
+                    value={formData.user_type} 
+                    onChange={handleChange}
+                    className="form-control"
+                >
+                    <option value="specialist">BIM-специалист</option>
+                    <option value="individual">Физическое лицо</option>
+                    <option value="legal">Юридическое лицо</option>
+                </select>
             </div>
 
             <div className="form-group">

@@ -3,7 +3,13 @@ from django.utils.translation import gettext_lazy as _
 from accounts.models import User
 
 class IndividualClient(models.Model):
+	CLIENT_TYPE_CHOICES = [
+		('customer', 'Заказчик'),
+		('contractor', 'Подрядчик'),
+	]
+
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='individual_client_profile', null=True, blank=True, unique=True)
+	client_type = models.CharField(_('Client Type'), max_length=20, choices=CLIENT_TYPE_CHOICES, default='customer')
 	middle_name = models.CharField(_('Middle Name'), max_length=150, null=True, blank=True)
 	birth_date = models.DateField(_('Birth Date'), null=True, blank=True)
 	address = models.TextField(_('Address'), blank=True)
@@ -23,8 +29,8 @@ class IndividualClient(models.Model):
 
 	def __str__(self):
 		if self.user:
-			return f"{self.user.get_full_name()} ({self.user.email})"
-		return f"Individual Client (ID: {self.pk})"
+			return f"{self.user.get_full_name()} ({self.user.email}) - {self.get_client_type_display()}"
+		return f"Individual Client (ID: {self.pk}) - {self.get_client_type_display()}"
 
 	def get_full_name(self):
 		if self.user and self.middle_name:
@@ -34,7 +40,13 @@ class IndividualClient(models.Model):
 		return "Unknown"
 
 class LegalEntityClient(models.Model):
+	CLIENT_TYPE_CHOICES = [
+		('customer', 'Заказчик'),
+		('contractor', 'Подрядчик'),
+	]
+
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='legal_entity_client_profile', null=True, blank=True)
+	client_type = models.CharField(_('Client Type'), max_length=20, choices=CLIENT_TYPE_CHOICES, default='customer')
 
 	# Обязательные поля
 	company_name = models.CharField(_('Company Name'), max_length=255)
@@ -66,5 +78,5 @@ class LegalEntityClient(models.Model):
 
 	def __str__(self):
 		if self.user:
-			return f"{self.company_name} ({self.user.email})"
-		return f"{self.company_name} (No User)"
+			return f"{self.company_name} ({self.user.email}) - {self.get_client_type_display()}"
+		return f"{self.company_name} (No User) - {self.get_client_type_display()}"

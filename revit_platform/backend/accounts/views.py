@@ -10,7 +10,7 @@ from .serializers import UserSerializer, UserUpdateSerializer
 from specialists.models import SpecialistProfile
 from specialists.serializers import SpecialistProfileSerializer
 from clients.models import LegalEntityClient, IndividualClient
-from clients.serializers import LegalEntitySerializer, IndividualClientSerializer
+from clients.serializers import LegalEntityClientSerializer, IndividualClientSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
             profile_data = SpecialistProfileSerializer(user.specialist_profile).data
             user_data['specialist_profile'] = profile_data
         elif user.user_type == 'legal' and hasattr(user, 'legal_entity_client_profile'):
-            profile_data = LegalEntitySerializer(user.legal_entity_client_profile).data
+            profile_data = LegalEntityClientSerializer(user.legal_entity_client_profile).data
             user_data['legal_entity_profile'] = profile_data
         elif user.user_type == 'individual' and hasattr(user, 'individual_client_profile'):
             profile_data = IndividualClientSerializer(user.individual_client_profile).data
@@ -150,10 +150,31 @@ class RegisterView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             user = serializer.save()
+            
+            # Если указан тип пользователя при регистрации, создаем соответствующий профиль
+            user_type = request.data.get('user_type')
+            if user_type == 'specialist':
+                # Создаем профиль специалиста с данными из регистрации
+                specialist_profile = SpecialistProfile.objects.create(
+                    user=user,
+                    specialist_type='executor',  # По умолчанию
+                    specialization='Не указано',
+                    experience='Не указано',
+                    about='Не указано',
+                    availability='Не указано',
+                    portfolio='',
+                    certificates='Не указано'
+                )
+                
+                # Устанавливаем тип пользователя
+                user.user_type = user_type
+                user.role_selected = True
+                user.save()
 
             return Response({
                 'message': 'Пользователь успешно зарегистрирован',
-                'user': UserSerializer(user).data
+                'user': UserSerializer(user).data,
+                'profile_created': user_type == 'specialist'
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:

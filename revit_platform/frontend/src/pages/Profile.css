@@ -33,9 +33,26 @@
 /* Основной контент профиля */
 .profile-content {
     display: grid;
-    grid-template-columns: 350px 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: stretch;
+    min-height: 600px;
+}
+
+@media (max-width: 1024px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .profile-sidebar {
+        position: static;
+        order: 1;
+    }
+    
+    .profile-main {
+        order: 2;
+    }
 }
 
 /* Боковая панель */
@@ -44,8 +61,10 @@
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 2rem;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Секция аватара */
@@ -255,6 +274,9 @@
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Алерты */
@@ -399,21 +421,6 @@
 }
 
 /* Адаптивность */
-@media (max-width: 1024px) {
-    .profile-content {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .profile-sidebar {
-        position: static;
-        order: 2;
-    }
-    
-    .profile-main {
-        order: 1;
-    }
-}
 
 @media (max-width: 768px) {
     .profile-container {
@@ -457,6 +464,20 @@
     .avatar-upload svg {
         font-size: 1rem;
     }
+    
+    .profile-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .profile-sidebar {
+        margin-bottom: 1rem;
+        height: auto;
+    }
+    
+    .profile-main {
+        height: auto;
+    }
 }
 
 @media (max-width: 480px) {
@@ -479,6 +500,15 @@
     .btn-cancel {
         padding: 0.8rem;
         font-size: 1rem;
+    }
+    
+    .profile-content {
+        gap: 0.5rem;
+    }
+    
+    .profile-sidebar,
+    .profile-main {
+        padding: 0.8rem;
     }
 }
 

@@ -1,26 +1,58 @@
 from django.contrib import admin
-from .models import Order
+from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory
+
+@admin.register(BIMFamilyCategory)
+class BIMFamilyCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'description']
+    search_fields = ['name', 'description']
+    prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['project_name', 'user', 'reference_project', 'budget', 'calculated_budget', 'percentage_change', 'deadline', 'status', 'created_at']
-    list_filter = ['status', 'created_at', 'deadline', 'reference_project']
-    search_fields = ['project_name', 'user__username', 'description', 'reference_project__name']
-    readonly_fields = ['created_at', 'updated_at', 'calculated_budget']
-    date_hierarchy = 'created_at'
+    list_display = ['order_number', 'title', 'customer', 'order_status', 'payment_status', 'work_type', 'final_cost', 'created_at']
+    list_filter = ['order_status', 'payment_status', 'work_type', 'created_at']
+    search_fields = ['order_number', 'title', 'customer__email', 'customer__first_name', 'customer__last_name']
+    readonly_fields = ['order_number', 'created_at', 'updated_at', 'submitted_at', 'completed_at']
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('user', 'reference_project', 'project_name', 'description')
+            'fields': ('order_number', 'title', 'description', 'requirements')
         }),
-        ('Финансы и сроки', {
-            'fields': ('budget', 'percentage_change', 'calculated_budget', 'deadline')
+        ('Заказчик и менеджер', {
+            'fields': ('customer', 'assigned_manager')
         }),
-        ('Статус', {
-            'fields': ('status',)
+        ('Тип работ и площадь', {
+            'fields': ('work_type', 'customer_area')
         }),
-        ('Системная информация', {
-            'fields': ('created_at', 'updated_at'),
+        ('Статусы', {
+            'fields': ('order_status', 'payment_status')
+        }),
+        ('Стоимость', {
+            'fields': ('base_cost', 'work_type_multiplier', 'area_adjustment', 'final_cost')
+        }),
+        ('Платежи', {
+            'fields': ('advance_paid', 'final_payment_paid')
+        }),
+        ('Временные метки', {
+            'fields': ('created_at', 'updated_at', 'submitted_at', 'completed_at'),
             'classes': ('collapse',)
         }),
     )
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'order', 'name', 'category', 'quantity', 'unit_cost', 'total_cost']
+    list_filter = ['category', 'order__order_status']
+    search_fields = ['name', 'order__order_number']
+
+@admin.register(OrderDocument)
+class OrderDocumentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'order', 'title', 'document_type', 'uploaded_at']
+    list_filter = ['document_type', 'uploaded_at']
+    search_fields = ['title', 'order__order_number']
+
+@admin.register(OrderPayment)
+class OrderPaymentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'order', 'amount', 'payment_type', 'status', 'payment_date']
+    list_filter = ['payment_type', 'status', 'payment_date']
+    search_fields = ['order__order_number', 'transaction_id']

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import axios from 'axios';
 import ProjectCard from '../components/ProjectCard';
-import './Projects.css';
+import './ArchitecturalProjects.css';
 
 function ArchitecturalProjects() {
     const [projects, setProjects] = useState([]);
@@ -13,6 +13,7 @@ function ArchitecturalProjects() {
         price: ''
     });
     const [sortBy, setSortBy] = useState('name');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -44,6 +45,10 @@ function ArchitecturalProjects() {
         setSortBy(e.target.value);
     };
 
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
     const sortProjects = (projects) => {
         return [...projects].sort((a, b) => {
             switch (sortBy) {
@@ -61,8 +66,22 @@ function ArchitecturalProjects() {
     };
 
     const filteredProjects = projects.filter(project => {
+        // Поиск по названию и категории
+        if (searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            const nameMatch = project.name.toLowerCase().includes(searchLower);
+            const categoryMatch = project.category && project.category.toLowerCase().includes(searchLower);
+            const descriptionMatch = project.description && project.description.toLowerCase().includes(searchLower);
+            
+            if (!nameMatch && !categoryMatch && !descriptionMatch) {
+                return false;
+            }
+        }
+        
+        // Фильтр по типу объекта
         if (filters.object_type && project.category !== filters.object_type) return false;
         
+        // Фильтр по площади
         const area = parseInt(project.total_area);
         if (filters.area) {
             if ((filters.area === 'small' && area > 100) ||
@@ -70,6 +89,7 @@ function ArchitecturalProjects() {
                 (filters.area === 'large' && area <= 200)) return false;
         }
 
+        // Фильтр по цене
         const price = parseInt(project.design_cost);
         if (filters.price) {
             if ((filters.price === 'economy' && price > 50000) ||
@@ -82,17 +102,51 @@ function ArchitecturalProjects() {
 
     const sortedProjects = sortProjects(filteredProjects);
 
+    if (loading) {
+        return (
+            <div className="architectural-projects">
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                    <p>Загрузка проектов...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="architectural-projects">
+                <div className="error-container">
+                    <h2>Ошибка загрузки</h2>
+                    <p>{error}</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <>
-            <div className="projects-background"></div>
-            <div className="projects-container">
-                <aside className="projects-sidebar">
-                    <div className="sidebar-content">
-                        <h2 className="sidebar-title">🔍 Фильтры и сортировка</h2>
-                        
+        <div className="architectural-projects">
+            <aside className="filter-sidebar">
+                <div className="sidebar-content">
+                    <h2 className="sidebar-title">🔍 Фильтры и сортировка</h2>
+                    
+                    <div className="filter-section">
+                        <h3>🔍 Поиск</h3>
                         <div className="filter-group">
-                            <label>📊 Сортировка</label>
-                            <select value={sortBy} onChange={handleSortChange}>
+                            <input
+                                type="text"
+                                placeholder="Поиск по названию, категории..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                className="search-input"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="filter-section">
+                        <h3>📊 Сортировка</h3>
+                        <div className="filter-group">
+                            <select value={sortBy} onChange={handleSortChange} className="filter-select">
                                 <option value="name">По названию (А-Я)</option>
                                 <option value="name_desc">По названию (Я-А)</option>
                                 <option value="price">По цене (возрастание)</option>
@@ -103,74 +157,89 @@ function ArchitecturalProjects() {
                                 <option value="oldest">Сначала старые</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div className="filter-section">
+                        <h3>🏗️ Тип объекта</h3>
                         <div className="filter-group">
-                            <label>🏗️ Тип объекта</label>
-                            <select name="object_type" value={filters.object_type} onChange={handleFilterChange}>
+                            <select name="object_type" value={filters.object_type} onChange={handleFilterChange} className="filter-select">
                                 <option value="">Все типы</option>
-                                <option value="RESIDENTIAL">Жилые дома</option>
-                                <option value="COMMERCIAL">Коммерческая недвижимость</option>
-                                <option value="INDUSTRIAL">Промышленные объекты</option>
+                                <option value="residential">Жилые здания</option>
+                                <option value="commercial">Коммерческие здания</option>
+                                <option value="industrial">Промышленные здания</option>
+                                <option value="public">Общественные здания</option>
+                                <option value="landscape">Ландшафтные проекты</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div className="filter-section">
+                        <h3>📏 Площадь</h3>
                         <div className="filter-group">
-                            <label>📐 Площадь</label>
-                            <select name="area" value={filters.area} onChange={handleFilterChange}>
+                            <select name="area" value={filters.area} onChange={handleFilterChange} className="filter-select">
                                 <option value="">Любая площадь</option>
-                                <option value="small">до 100 м²</option>
+                                <option value="small">До 100 м²</option>
                                 <option value="medium">100-200 м²</option>
-                                <option value="large">более 200 м²</option>
+                                <option value="large">Более 200 м²</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div className="filter-section">
+                        <h3>💰 Стоимость</h3>
                         <div className="filter-group">
-                            <label>💰 Стоимость</label>
-                            <select name="price" value={filters.price} onChange={handleFilterChange}>
+                            <select name="price" value={filters.price} onChange={handleFilterChange} className="filter-select">
                                 <option value="">Любая стоимость</option>
-                                <option value="economy">до 50000 ₽</option>
-                                <option value="standard">50000-150000 ₽</option>
-                                <option value="premium">более 150000 ₽</option>
+                                <option value="economy">До 50,000 ₽</option>
+                                <option value="standard">50,000 - 150,000 ₽</option>
+                                <option value="premium">Более 150,000 ₽</option>
                             </select>
                         </div>
                     </div>
-                </aside>
 
-                <main className="projects-main">
-                    <div className="page-header">
-                        <h1>🏛️ Каталог архитектурных проектов</h1>
-                        <p className="page-subtitle">Откройте для себя уникальные архитектурные решения для ваших проектов</p>
-                        {sortedProjects.length > 0 && (
-                            <div className="projects-count">
-                                Найдено проектов: <strong>{sortedProjects.length}</strong>
-                            </div>
-                        )}
+                    <div className="filter-section">
+                        <h3>📈 Статистика</h3>
+                        <div className="stats-info">
+                            <p><strong>Всего проектов:</strong> {projects.length}</p>
+                            <p><strong>Показано:</strong> {sortedProjects.length}</p>
+                            {searchTerm && (
+                                <p><strong>Поиск:</strong> "{searchTerm}"</p>
+                            )}
+                        </div>
                     </div>
+                </div>
+            </aside>
 
-                    {loading ? (
-                        <div className="loading-container">
-                            <div className="loading-spinner"></div>
-                            <p>Загрузка проектов...</p>
-                        </div>
-                    ) : error ? (
-                        <div className="error-container">
-                            <p>❌ {error}</p>
-                        </div>
-                    ) : sortedProjects.length === 0 ? (
-                        <div className="no-projects">
-                            <p>🔍 Проекты не найдены</p>
-                            <p>Попробуйте изменить параметры фильтрации</p>
-                        </div>
-                    ) : (
-                        <div className="projects-grid">
-                            {sortedProjects.map((project) => (
-                                <ProjectCard key={project.id} project={project} />
-                            ))}
-                        </div>
-                    )}
-                </main>
-            </div>
-        </>
+            <main className="projects-main">
+                <div className="projects-header">
+                    <h1>🏛️ Каталог архитектурных проектов</h1>
+                    <p>Найдите идеальный проект для вашего будущего здания</p>
+                </div>
+
+                <div className="projects-grid">
+                    {sortedProjects.map(project => (
+                        <ProjectCard key={project.id} project={project} />
+                    ))}
+                </div>
+
+                {sortedProjects.length === 0 && (
+                    <div className="no-projects">
+                        <h3>😔 Проекты не найдены</h3>
+                        <p>Попробуйте изменить фильтры или сбросить их</p>
+                        <button 
+                            className="btn btn-primary"
+                            onClick={() => {
+                                setFilters({ object_type: '', area: '', price: '' });
+                                setSortBy('name');
+                                setSearchTerm('');
+                            }}
+                        >
+                            Сбросить фильтры
+                        </button>
+                    </div>
+                )}
+            </main>
+        </div>
     );
 }
 

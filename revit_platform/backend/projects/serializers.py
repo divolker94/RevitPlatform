@@ -52,8 +52,30 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'status', 'author',
-                'created_at', 'updated_at', 'sections', 'roles', 'team_members']
+        fields = [
+            'id', 'name', 'description', 'status', 'author',
+            'created_at', 'updated_at', 'sections', 'roles', 'team_members',
+            # Поля для BIM-менеджера
+            'object_code', 'design_stage', 'construction_queue', 'launch_complexes',
+            # ТЭП
+            'floors', 'total_area', 'building_area', 'construction_volume', 'structural_system',
+            # Архитектурная часть
+            'architectural_concept', 'facade_materials', 'interior_finish', 'landscape_design',
+            # Конструктивная часть
+            'foundation_type', 'wall_materials', 'roof_type', 'seismic_resistance',
+            # Водоснабжение и канализация
+            'water_supply_system', 'sewerage_system', 'cold_water_system', 'water_consumption',
+            # Отопление и вентиляция
+            'heating_system', 'ventilation_system', 'air_conditioning', 'heating_load',
+            # Электроснабжение
+            'electrical_system', 'electrical_load', 'backup_power', 'grounding_system',
+            # Сети связи
+            'communication_networks', 'security_systems', 'automation_systems', 'it_infrastructure',
+            # Пожарная безопасность
+            'fire_safety', 'evacuation_routes', 'fire_extinguishing',
+            # Экология и энергоэффективность
+            'energy_efficiency', 'environmental_impact', 'sustainability_features'
+        ]
         read_only_fields = ['author', 'created_at', 'updated_at']
 
 class ProjectCommentSerializer(serializers.ModelSerializer):

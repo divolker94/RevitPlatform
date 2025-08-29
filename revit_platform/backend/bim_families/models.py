@@ -4,23 +4,17 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class BimFamily(models.Model):
-    name = models.CharField(max_length=255)
-    external_id = models.CharField(max_length=100, unique=True)
-    url = models.URLField()
+    name = models.CharField(max_length=200)
     description = models.TextField()
-    technical_specs = models.JSONField(default=dict)
-    basic_specs = models.JSONField(default=dict)
-    catalog_items = models.JSONField(default=list)
-    company_info = models.JSONField(default=dict)
-    download_info = models.JSONField(default=dict)
-    parsing_method = models.CharField(max_length=50)
-    total_images = models.IntegerField(default=0)
-    parsed_at = models.CharField(max_length=50)
-    views = models.IntegerField(default=0)
-    downloads = models.IntegerField(default=0)
-    comments = models.IntegerField(default=0)
-    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.5)
+    category = models.ForeignKey('orders.BIMFamilyCategory', on_delete=models.SET_NULL, null=True, blank=True)
+    family_type = models.CharField(max_length=100, default='Не указан')
+    manufacturer = models.CharField(max_length=200, default='Не указан')
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    views_count = models.IntegerField(default=0)
+    downloads_count = models.IntegerField(default=0)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'families_bimfamily_2'
@@ -51,14 +45,13 @@ class BimFamily(models.Model):
         
         # Обновляем общий счетчик просмотров
         if created:
-            self.views = self.get_unique_views_count()
-            self.save(update_fields=['views'])
+            self.views_count = self.get_unique_views_count()
+            self.save(update_fields=['views_count'])
 
 class FamilyImage(models.Model):
     family = models.ForeignKey(BimFamily, on_delete=models.CASCADE, related_name='images')
-    local_path = models.CharField(max_length=255)
-    image_type = models.CharField(max_length=50, default='preview')
-    created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='bim_families/', null=True, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'families_familyimage_2'
@@ -66,7 +59,7 @@ class FamilyImage(models.Model):
         verbose_name_plural = 'Изображения семейств'
 
     def __str__(self):
-        return f"{self.family.name} - {self.image_type}"
+        return f"{self.family.name} - изображение"
 
 class FamilyView(models.Model):
     """Модель для отслеживания уникальных просмотров BIM семейств"""

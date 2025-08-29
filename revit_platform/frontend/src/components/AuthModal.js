@@ -61,7 +61,8 @@ function AuthModal({ show, onHide, onLogin }) {
                 password: formData.password,
                 re_password: formData.re_password,
                 first_name: formData.first_name,
-                last_name: formData.last_name
+                last_name: formData.last_name,
+                user_type: formData.user_type
             };
 
             console.log('Отправляем данные регистрации:', registrationData);
@@ -98,6 +99,24 @@ function AuthModal({ show, onHide, onLogin }) {
 
             localStorage.setItem('access_token', loginResponse.data.access);
             localStorage.setItem('refresh_token', loginResponse.data.refresh);
+            
+            // Если тип пользователя уже выбран при регистрации, не перенаправляем на выбор
+            if (formData.user_type === 'specialist') {
+                // Для BIM-специалиста сразу входим в систему
+                const userResponse = await axios.get('http://localhost:8000/api/auth/users/me/', {
+                    headers: {
+                        'Authorization': `Bearer ${loginResponse.data.access}`
+                    }
+                });
+                
+                localStorage.setItem('username', userResponse.data.username);
+                localStorage.setItem('user_data', JSON.stringify(userResponse.data));
+                localStorage.setItem('token', loginResponse.data.access);
+                
+                onLogin(userResponse.data.username);
+                onHide();
+                return;
+            }
 
             console.log('Перенаправляем на выбор типа пользователя...');
             navigate('/select-user-type');

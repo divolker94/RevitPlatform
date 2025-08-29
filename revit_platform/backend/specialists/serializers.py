@@ -18,6 +18,7 @@ class SpecialistProfileSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'user',
+            'specialist_type',
             'specialization',
             'experience',
             'availability',

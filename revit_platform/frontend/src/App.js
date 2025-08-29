@@ -26,6 +26,7 @@ import UserTypeSelect from './components/UserTypeSelect';
 import CompanyProfile from './components/CompanyProfile'; // Импорт переименованного компонента
 import ClientProfile from './components/ClientProfile'; // Импорт переименованного компонента
 import BimSpecialistProfile from './components/BimSpecialistProfile'; // Импорт переименованного компонента
+import OrderCart from './pages/OrderCart';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
@@ -63,6 +64,7 @@ function App() {
                         <Route path="/forum/technology" element={<Technology />} />
                         <Route path="/forum/training" element={<Training />} />
                         <Route path="/forum/post/:id" element={<ForumPostDetail />} />
+                        <Route path="/order-cart" element={<OrderCart />} />
 
                         {/* Previously protected routes, now public */}
                         <Route path="/projects" element={<Projects />} />

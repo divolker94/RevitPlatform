@@ -1,0 +1,162 @@
+.add-to-order-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.add-to-order-btn:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.add-to-order-btn:active {
+    transform: translateY(0);
+}
+
+.add-to-order-btn.in-cart {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.add-to-order-btn.in-cart:hover {
+    background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.add-to-order-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-from-cart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+.remove-from-cart-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.quantity-input-form {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quantity-input {
+    width: 60px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+}
+
+.quantity-input:focus {
+    background: #f8f9fa;
+}
+
+.quantity-submit-btn,
+.quantity-cancel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.quantity-submit-btn {
+    background: #28a745;
+    color: white;
+}
+
+.quantity-submit-btn:hover {
+    background: #1e7e34;
+    transform: scale(1.1);
+}
+
+.quantity-cancel-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.quantity-cancel-btn:hover {
+    background: #5a6268;
+    transform: scale(1.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .add-to-order-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .add-to-order-btn span {
+        display: none;
+    }
+    
+    .quantity-input {
+        width: 50px;
+        font-size: 12px;
+    }
+    
+    .quantity-submit-btn,
+    .quantity-cancel-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .add-to-order-btn {
+        padding: 4px 8px;
+    }
+    
+    .quantity-input-form {
+        padding: 2px;
+    }
+    
+    .quantity-input {
+        width: 40px;
+        padding: 4px 6px;
+    }
+}

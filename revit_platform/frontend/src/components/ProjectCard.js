@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import './ProjectCard.css';
 import { useNavigate } from 'react-router-dom';
+import AddToOrderButton from './AddToOrderButton';
+import { FaShoppingCart } from 'react-icons/fa';
 
 const ProjectCard = ({ project }) => {
     const [imageError, setImageError] = useState(false);

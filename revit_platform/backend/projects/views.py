@@ -70,10 +70,37 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 'detail': 'A specialist profile is required to create projects'
             })
 
-        if user.specialist_profile.specialization not in ['bim_manager', 'architect', 'constructor', 'engineer']:
+        # Проверяем, содержит ли специализация пользователя разрешенные специализации
+        user_specializations = [s.strip().lower() for s in user.specialist_profile.specialization.split(',')]
+        allowed_specializations = [
+            'bim_manager', 'bim-менеджмент', 'bim менеджмент',
+            'architect', 'архитектурное проектирование', 'архитектурное проектирование',
+            'constructor', 'конструктивные решения', 'конструктивные решения',
+            'engineer', 'инженерные системы', 'инженерные системы',
+            'bim-координация', 'bim координация',
+            'генеральное проектирование',
+            'проектирование фасадов',
+            'проектирование интерьеров',
+            'ландшафтное проектирование',
+            'проектирование инженерных сетей',
+            'проектирование вентиляции и кондиционирования',
+            'проектирование электрических систем',
+            'проектирование водоснабжения и канализации',
+            'проектирование систем безопасности',
+            'управление проектами'
+        ]
+        
+        # Проверяем, есть ли хотя бы одна разрешенная специализация
+        has_allowed_specialization = any(
+            user_spec in allowed_specializations or 
+            any(allowed in user_spec for allowed in allowed_specializations)
+            for user_spec in user_specializations
+        )
+        
+        if not has_allowed_specialization:
             raise PermissionDenied({
                 'error': 'Invalid specialization',
-                'detail': f'Your specialization {user.specialist_profile.specialization} is not authorized to create projects'
+                'detail': f'Your specialization {user.specialist_profile.specialization} is not authorized to create projects. Allowed specializations: BIM management, architectural design, structural engineering, engineering systems, and related fields.'
             })
 
         try:

@@ -27,6 +27,7 @@ class Project(models.Model):
         ('archived', 'В архиве'),
     ]
 
+    # Основная информация
     name = models.CharField('Название', max_length=255)
     description = models.TextField('Описание', blank=True)
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='draft')
@@ -39,6 +40,65 @@ class Project(models.Model):
         related_name='project_memberships',
         verbose_name='Участники проекта'
     )
+
+    # Поля для BIM-менеджера
+    object_code = models.CharField('Шифр объекта', max_length=100, blank=True)
+    design_stage = models.CharField('Стадия проектирования', max_length=100, blank=True)
+    construction_queue = models.CharField('Очередь строительства', max_length=100, blank=True)
+    launch_complexes = models.CharField('Пусковые комплексы', max_length=200, blank=True)
+
+    # ТЭП (Технико-экономические показатели)
+    floors = models.PositiveIntegerField('Этажность', null=True, blank=True)
+    total_area = models.DecimalField('Общая площадь (м²)', max_digits=10, decimal_places=2, null=True, blank=True)
+    building_area = models.DecimalField('Площадь застройки (м²)', max_digits=10, decimal_places=2, null=True, blank=True)
+    construction_volume = models.DecimalField('Строительный объем (м³)', max_digits=12, decimal_places=2, null=True, blank=True)
+    structural_system = models.CharField('Конструктивная система', max_length=100, blank=True)
+
+    # Архитектурная часть (для архитектора)
+    architectural_concept = models.TextField('Архитектурная концепция', blank=True)
+    facade_materials = models.CharField('Материалы фасадов', max_length=200, blank=True)
+    interior_finish = models.CharField('Отделка интерьеров', max_length=200, blank=True)
+    landscape_design = models.TextField('Ландшафтное проектирование', blank=True)
+
+    # Конструктивная часть (для конструктора)
+    foundation_type = models.CharField('Тип фундамента', max_length=100, blank=True)
+    wall_materials = models.CharField('Материалы стен', max_length=200, blank=True)
+    roof_type = models.CharField('Тип кровли', max_length=100, blank=True)
+    seismic_resistance = models.CharField('Сейсмостойкость', max_length=50, blank=True)
+
+    # Водоснабжение и канализация (для специалиста ВК)
+    water_supply_system = models.TextField('Система внутреннего и наружного водоснабжения', blank=True)
+    sewerage_system = models.TextField('Система канализации', blank=True)
+    cold_water_system = models.TextField('Система холодоснабжения', blank=True)
+    water_consumption = models.DecimalField('Расход воды (л/с)', max_digits=8, decimal_places=2, null=True, blank=True)
+
+    # Отопление и вентиляция (для специалиста ОВ)
+    heating_system = models.TextField('Система отопления', blank=True)
+    ventilation_system = models.TextField('Система вентиляции', blank=True)
+    air_conditioning = models.TextField('Система кондиционирования', blank=True)
+    heating_load = models.DecimalField('Тепловая нагрузка (кВт)', max_digits=10, decimal_places=2, null=True, blank=True)
+
+    # Электроснабжение (для специалиста ЭОМ)
+    electrical_system = models.TextField('Система электроснабжения', blank=True)
+    electrical_load = models.DecimalField('Электрическая нагрузка (кВт)', max_digits=10, decimal_places=2, null=True, blank=True)
+    backup_power = models.TextField('Резервное электроснабжение', blank=True)
+    grounding_system = models.CharField('Система заземления', max_length=100, blank=True)
+
+    # Сети связи (для специалиста СС)
+    communication_networks = models.TextField('Сети связи', blank=True)
+    security_systems = models.TextField('Системы безопасности', blank=True)
+    automation_systems = models.TextField('Системы автоматизации', blank=True)
+    it_infrastructure = models.TextField('IT-инфраструктура', blank=True)
+
+    # Пожарная безопасность
+    fire_safety = models.TextField('Пожарная безопасность', blank=True)
+    evacuation_routes = models.TextField('Пути эвакуации', blank=True)
+    fire_extinguishing = models.TextField('Системы пожаротушения', blank=True)
+
+    # Экология и энергоэффективность
+    energy_efficiency = models.CharField('Класс энергоэффективности', max_length=50, blank=True)
+    environmental_impact = models.TextField('Воздействие на окружающую среду', blank=True)
+    sustainability_features = models.TextField('Экологические особенности', blank=True)
 
     class Meta:
         verbose_name = 'Проект'
