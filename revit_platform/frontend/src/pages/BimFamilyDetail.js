@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AddToOrderButton from '../components/AddToOrderButton';
 import './BimFamilyDetail.css';
 
 function BimFamilyDetail() {
@@ -223,9 +224,17 @@ function BimFamilyDetail() {
                                 <button className="btn btn-primary btn-lg w-100 mb-2">
                                     <i className="fas fa-download"></i> Скачать семейство
                                 </button>
-                                <button className="btn btn-outline-secondary w-100">
+                                <button className="btn btn-outline-secondary w-100 mb-2">
                                     <i className="fas fa-share"></i> Поделиться
                                 </button>
+                                <AddToOrderButton
+                                    itemType="bim_family"
+                                    itemId={family.id}
+                                    itemName={family.name}
+                                    itemCost={family.cost || 0}
+                                    itemArea={family.area || 0}
+                                    itemCategory={family.category?.name || family.family_type}
+                                />
                             </div>
                         </div>
                             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import AddToOrderButton from '../components/AddToOrderButton';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
@@ -10,6 +11,7 @@ function ProjectDetail() {
     const [error, setError] = useState(null);
     const [rating, setRating] = useState(0);
     const [userRating, setUserRating] = useState(0);
+    const [userData, setUserData] = useState(null);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -33,6 +35,29 @@ function ProjectDetail() {
 
         fetchProject();
     }, [id]);
+
+    // Загружаем данные пользователя
+    useEffect(() => {
+        const loadUserData = async () => {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                try {
+                    const response = await fetch('http://localhost:8000/api/auth/users/me/', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUserData(data);
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+        };
+        loadUserData();
+    }, []);
 
     const handleRating = async (newRating) => {
         try {
@@ -163,40 +188,23 @@ function ProjectDetail() {
                 <p>{project.description || 'Описание отсутствует'}</p>
             </div>
 
+            <div className="project-actions">
+                <AddToOrderButton
+                    itemType="architectural"
+                    itemId={project.id}
+                    itemName={project.name}
+                    itemCost={project.design_cost}
+                    itemArea={project.total_area}
+                    itemCategory={project.category}
+                />
+            </div>
+
             <div className="project-documentation">
                 <h2>Документация</h2>
                 <p>{project.documentation || 'Документация отсутствует'}</p>
             </div>
 
-            <div className="project-images">
-                <h2>Изображения проекта</h2>
-                <div className="image-grid">
-                    {project.image_main && (
-                        <div className="image-item">
-                            <h3>Главное изображение</h3>
-                            <img src={`/images/catalog/${project.image_main}`} alt="Главное изображение" />
-                        </div>
-                    )}
-                    {project.image_plan && (
-                        <div className="image-item">
-                            <h3>План</h3>
-                            <img src={`/images/catalog/${project.image_plan}`} alt="План" />
-                        </div>
-                    )}
-                    {project.image_interior1 && (
-                        <div className="image-item">
-                            <h3>Интерьер 1</h3>
-                            <img src={`/images/catalog/${project.image_interior1}`} alt="Интерьер 1" />
-                        </div>
-                    )}
-                    {project.image_interior2 && (
-                        <div className="image-item">
-                            <h3>Интерьер 2</h3>
-                            <img src={`/images/catalog/${project.image_interior2}`} alt="Интерьер 2" />
-                        </div>
-                    )}
-                </div>
-            </div>
+
 
             <div className="project-specs">
                 <h2>Технические характеристики</h2>

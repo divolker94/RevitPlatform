@@ -781,8 +781,33 @@ function Profile() {
                         </div>
                         <div className="profile-info">
                             <h3>{user.first_name || user.email.split('@')[0]} {user.last_name || ''}</h3>
-                            <p className="user-type">{getUserTypeLabel(user.user_type)}</p>
                             <p className="user-email">{user.email}</p>
+                        </div>
+                        
+                        {/* Блок типа профиля */}
+                        <div className="profile-type">
+                            <div className="profile-type-label">Тип профиля</div>
+                            <div className="profile-type-value">{getUserTypeLabel(user.user_type)}</div>
+                        </div>
+                        
+                        {/* Специализация для BIM-специалистов */}
+                        {user.user_type === 'specialist' && profileData.specialization && (
+                            <div className="specialist-type">
+                                <div className="specialist-type-label">Специализация</div>
+                                <div className="specialist-type-value">{profileData.specialization}</div>
+                            </div>
+                        )}
+                        
+                        {/* Статистика профиля */}
+                        <div className="profile-stats">
+                            <div className="stat-item">
+                                <div className="stat-value">{profileData.rating || 0}</div>
+                                <div className="stat-label">Рейтинг</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-value">{profileData.experience_years || 0}</div>
+                                <div className="stat-label">Опыт (лет)</div>
+                            </div>
                         </div>
                     </div>
 

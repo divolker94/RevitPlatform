@@ -1,0 +1,80 @@
+.profile-panel {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.profile-panel:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.panel-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.panel-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.panel-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.panel-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.panel-content {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.98);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-panel {
+        margin-bottom: 1rem;
+    }
+    
+    .panel-header {
+        padding: 1rem;
+    }
+    
+    .panel-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .panel-icon i {
+        font-size: 1.2rem;
+    }
+    
+    .panel-title {
+        font-size: 1.1rem;
+    }
+    
+    .panel-content {
+        padding: 1.5rem;
+    }
+}
