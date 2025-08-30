@@ -28,11 +28,23 @@ class OrderViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if hasattr(user, 'specialistprofile') and user.specialistprofile.specialist_type == 'manager':
+        print(f"OrderViewSet - User: {user.username}, User type: {getattr(user, 'user_type', 'None')}")
+        
+        # Проверяем, является ли пользователь BIM-менеджером
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            print(f"OrderViewSet - Specialist type: {user.specialist_profile.specialist_type}")
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        else:
+            print(f"OrderViewSet - No specialist profile")
+        
+        if is_manager:
             # BIM-менеджер видит все заказы
+            print(f"OrderViewSet - Manager view: showing all orders")
             return Order.objects.all()
         else:
             # Клиент видит только свои заказы
+            print(f"OrderViewSet - Customer view: showing orders for {user.username}")
             return Order.objects.filter(customer=user)
     
     def get_serializer_class(self):
@@ -86,11 +98,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                             'functional_class': project.functional_class or '',
                             'quantity': quantity,
                             'unit_cost': project.design_cost or 0,
+                            'total_cost': (project.design_cost or 0) * quantity,
                             'notes': notes
                         }
                     )
                     if not created:
                         item.quantity += quantity
+                        item.total_cost = item.unit_cost * item.quantity
                         item.save()
                 
                 elif item_type == 'bim_family':
@@ -104,11 +118,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                             'base_cost': family.cost or 0,
                             'quantity': quantity,
                             'unit_cost': family.cost or 0,
+                            'total_cost': (family.cost or 0) * quantity,
                             'notes': notes
                         }
                     )
                     if not created:
                         item.quantity += quantity
+                        item.total_cost = item.unit_cost * item.quantity
                         item.save()
                 
                 # Пересчитываем стоимость заказа
@@ -191,6 +207,87 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
         
         return Response({'message': 'Заказ отправлен на рассмотрение'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def take_in_work(self, request, pk=None):
+        """Взять заказ в работу"""
+        order = self.get_object()
+        user = request.user
+        
+        # Добавляем отладочную информацию
+        print(f"DEBUG take_in_work - User: {user.email}")
+        print(f"DEBUG take_in_work - User type: {getattr(user, 'user_type', 'None')}")
+        print(f"DEBUG take_in_work - User role: {getattr(user, 'user_role', 'None')}")
+        print(f"DEBUG take_in_work - Has specialist_profile: {hasattr(user, 'specialist_profile')}")
+        
+        if hasattr(user, 'specialist_profile'):
+            print(f"DEBUG take_in_work - Specialist type: {user.specialist_profile.specialist_type}")
+            print(f"DEBUG take_in_work - Specialization: {user.specialist_profile.specialization}")
+        else:
+            print("DEBUG take_in_work - No specialist profile found!")
+        
+        # Проверяем, что пользователь является BIM-менеджером
+        if not hasattr(request.user, 'specialist_profile') or request.user.specialist_profile.specialist_type != 'manager':
+            print(f"DEBUG take_in_work - PERMISSION DENIED: User is not a BIM manager")
+            return Response(
+                {'detail': 'Только BIM-менеджеры могут брать заказы в работу'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "черновик"
+        if order.order_status != 'draft':
+            return Response(
+                {'detail': 'Можно брать в работу только заказы в статусе "Черновик"'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Назначаем BIM-менеджера и меняем статус
+        order.assigned_manager = request.user
+        order.order_status = 'in_progress'
+        order.save()
+        
+        return Response({
+            'detail': 'Заказ взят в работу',
+            'order_status': order.order_status,
+            'assigned_manager': request.user.get_full_name()
+        })
+
+    @action(detail=True, methods=['post'])
+    def send_to_customer(self, request, pk=None):
+        """Отправить файлы заказчику"""
+        order = self.get_object()
+        
+        # Проверяем, что пользователь является назначенным BIM-менеджером
+        if not hasattr(request.user, 'specialist_profile') or request.user.specialist_profile.specialist_type != 'manager':
+            return Response(
+                {'detail': 'Только BIM-менеджеры могут отправлять файлы'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if order.assigned_manager != request.user:
+            return Response(
+                {'detail': 'Только назначенный BIM-менеджер может отправлять файлы'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "в работе"
+        if order.order_status != 'in_progress':
+            return Response(
+                {'detail': 'Можно отправлять файлы только для заказов в статусе "В работе"'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Меняем статус на "на согласовании"
+        order.order_status = 'review'
+        order.save()
+        
+        # Здесь можно добавить логику для сохранения файлов
+        # files = request.data.get('files', [])
+        
+        return Response({
+            'detail': 'Файлы отправлены заказчику',
+            'order_status': order.order_status
+        })
     
     @action(detail=True, methods=['post'])
     def assign_manager(self, request, pk=None):
@@ -202,7 +299,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             from django.contrib.auth import get_user_model
             User = get_user_model()
             manager = User.objects.get(id=manager_id)
-            if hasattr(manager, 'specialistprofile') and manager.specialistprofile.specialist_type == 'manager':
+            if hasattr(manager, 'specialist_profile') and manager.specialist_profile.specialist_type == 'manager':
                 order.assigned_manager = manager
                 order.order_status = 'in_progress'
                 order.save()
@@ -232,6 +329,155 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         serializer = OrderDocumentSerializer(document)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def upload_file(self, request, pk=None):
+        """Загрузить файл для заказа"""
+        order = self.get_object()
+        file_obj = request.FILES.get('file')
+        title = request.data.get('title', '')
+        description = request.data.get('description', '')
+        file_type = request.data.get('file_type', 'other')
+        
+        if not file_obj:
+            return Response(
+                {'detail': 'Файл не предоставлен'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not title:
+            return Response(
+                {'detail': 'Название файла обязательно'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Проверяем, что пользователь является BIM-менеджером
+        if not hasattr(request.user, 'specialist_profile') or request.user.specialist_profile.specialist_type != 'manager':
+            return Response(
+                {'detail': 'Только BIM-менеджеры могут загружать файлы'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ назначен этому менеджеру
+        if order.assigned_manager != request.user:
+            return Response(
+                {'detail': 'Только назначенный BIM-менеджер может загружать файлы'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Создаем файл заказа
+        from .models import OrderFile
+        order_file = OrderFile.objects.create(
+            order=order,
+            file=file_obj,
+            title=title,
+            description=description,
+            file_type=file_type,
+            uploaded_by=request.user
+        )
+        
+        # Обновляем статус заказа на "на согласовании"
+        if order.order_status == 'in_progress':
+            order.order_status = 'review'
+            order.save()
+        
+        from .serializers import OrderFileSerializer
+        serializer = OrderFileSerializer(order_file)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def add_comment(self, request, pk=None):
+        """Добавить комментарий к заказу"""
+        order = self.get_object()
+        comment_text = request.data.get('comment', '').strip()
+        
+        if not comment_text:
+            return Response(
+                {'detail': 'Комментарий не может быть пустым'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Проверяем, что пользователь является заказчиком
+        if order.customer != request.user:
+            return Response(
+                {'detail': 'Только заказчик может добавлять комментарии'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "на согласовании"
+        if order.order_status != 'review':
+            return Response(
+                {'detail': 'Комментарии можно добавлять только к заказам на согласовании'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Сохраняем комментарий в базе данных
+        order.customer_comment = comment_text
+        order.comment_date = timezone.now()
+        order.save()
+        
+        return Response({
+            'detail': 'Комментарий добавлен',
+            'comment': comment_text,
+            'comment_date': order.comment_date
+        })
+
+    @action(detail=True, methods=['post'])
+    def confirm_sketch(self, request, pk=None):
+        """Подтвердить эскиз заказчиком"""
+        order = self.get_object()
+        
+        # Проверяем, что пользователь является заказчиком
+        if order.customer != request.user:
+            return Response(
+                {'detail': 'Только заказчик может подтверждать эскиз'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "на согласовании"
+        if order.order_status != 'review':
+            return Response(
+                {'detail': 'Эскиз можно подтверждать только для заказов на согласовании'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Меняем статус на "в работе" (BIM-менеджер продолжает работу)
+        order.order_status = 'in_progress'
+        order.save()
+        
+        return Response({
+            'detail': 'Эскиз подтвержден',
+            'order_status': order.order_status
+        })
+
+    @action(detail=True, methods=['post'])
+    def complete_order(self, request, pk=None):
+        """Завершить заказ заказчиком"""
+        order = self.get_object()
+        
+        # Проверяем, что пользователь является заказчиком
+        if order.customer != request.user:
+            return Response(
+                {'detail': 'Только заказчик может завершать заказ'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "в работе"
+        if order.order_status != 'in_progress':
+            return Response(
+                {'detail': 'Заказ можно завершать только в статусе "В работе"'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Меняем статус на "завершен"
+        order.order_status = 'completed'
+        order.save()
+        
+        return Response({
+            'detail': 'Заказ завершен',
+            'order_status': order.order_status
+        })
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     """API для элементов заказа"""

@@ -7,7 +7,6 @@ const OrderForm = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         reference_project: null,
-        project_name: '',
         description: '',
         deadline: '',
         budget: '',
@@ -47,7 +46,6 @@ const OrderForm = () => {
         setFormData(prev => ({
             ...prev,
             reference_project: project,
-            project_name: project.name,
             budget: project.design_cost
         }));
         setShowProjectSelector(false);
@@ -206,18 +204,6 @@ const OrderForm = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="order-form">
-                <div className="form-group">
-                    <label htmlFor="project_name">Название проекта</label>
-                    <input
-                        type="text"
-                        id="project_name"
-                        name="project_name"
-                        value={formData.project_name}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-
                 <div className="form-group">
                     <label htmlFor="description">Описание</label>
                     <textarea

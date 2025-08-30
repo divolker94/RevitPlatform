@@ -64,8 +64,158 @@
     height: auto;
 }
 
-/* Секция аватара */
-.profile-avatar-section {
+/* Стили для специалистов */
+.specialist-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.badge-icon {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Стили для заголовков секций (только на странице профиля) */
+.profile-main .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.profile-main .section-header h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.profile-main .section-icon {
+    color: #3498db;
+    font-size: 1.5rem;
+}
+
+/* Стили для секций профиля (только на странице профиля) */
+.profile-main .profile-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+/* Дополнительные стили для заголовков секций */
+.section-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.section-icon {
+    margin-right: 0.75rem;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.profile-main .section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Стили для форм (только на странице профиля) */
+.profile-main .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.profile-main .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-main .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.profile-main .form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.profile-main .form-group input,
+.profile-main .form-group select,
+.profile-main .form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.profile-main .form-group input:focus,
+.profile-main .form-group select:focus,
+.profile-main .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.profile-main .form-group input:disabled,
+.profile-main .form-group select:disabled,
+.profile-main .form-group textarea:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.profile-main .disabled-input {
+    background: #e9ecef !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+}
+
+/* Стили для кнопок редактирования (только на странице профиля) */
+.profile-main .edit-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profile-main .edit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Стили для аватара (только на странице профиля) */
+.profile-main .profile-avatar-section {
     text-align: center;
     margin-bottom: 2rem;
 }
@@ -103,47 +253,49 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 40px;
-    height: 40px;
-    background: #007bff;
+    background: #28a745;
+    color: white;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+    border: 3px solid white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .avatar-upload:hover {
-    background: #0056b3;
+    background: #218838;
     transform: scale(1.1);
 }
 
-.avatar-upload svg {
-    font-size: 1.2rem;
+.avatar-upload.loading {
+    background: #6c757d;
+    cursor: not-allowed;
 }
 
-/* Кнопка удаления аватара */
 .avatar-remove {
     position: absolute;
     top: 0;
     right: 0;
+    background: #dc3545;
+    color: white;
     width: 30px;
     height: 30px;
-    background: #dc3545;
-    border: none;
     border-radius: 50%;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+    border: 2px solid white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .avatar-remove:hover {
@@ -151,128 +303,155 @@
     transform: scale(1.1);
 }
 
-.avatar-remove:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    transform: none;
+/* Уведомление о профиле */
+.profile-notice {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
 }
 
-.avatar-remove:disabled:hover {
-    background: #6c757d;
-    transform: none;
+.profile-notice p {
+    margin: 5px 0;
+    color: #6c757d;
+    font-size: 14px;
 }
 
-/* Индикатор загрузки аватара */
-.avatar-upload.loading {
-    pointer-events: none;
-    opacity: 0.7;
+.profile-notice p:first-child {
+    font-weight: 500;
+    color: #495057;
 }
 
-.avatar-upload.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid transparent;
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.avatar-upload:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* Информация о пользователе */
-.profile-info h3 {
+/* Стили для информации профиля (только на странице профиля) */
+.profile-main .profile-info h3 {
+    margin: 0 0 0.5rem 0;
     color: #2c3e50;
     font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.user-type {
-    color: #007bff;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    padding: 0.3rem 1rem;
-    background: rgba(0, 123, 255, 0.1);
-    border-radius: 20px;
-    display: inline-block;
+    font-weight: 700;
 }
 
 .user-email {
     color: #6c757d;
-    font-size: 0.95rem;
     margin: 0;
+    font-size: 1rem;
 }
 
-/* Кнопки действий */
+.profile-type,
+.specialist-type {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.profile-type-label,
+.specialist-type-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-type-value,
+.specialist-type-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Стили для статистики (только на странице профиля) */
+.profile-main .profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Стили для кнопок действий */
 .profile-actions {
     margin-top: 2rem;
 }
 
-.btn-edit {
+.btn {
     width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
     font-weight: 600;
-    border-radius: 15px;
+    cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-.btn-edit:hover {
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
 .edit-actions {
     display: flex;
-    flex-direction: column;
     gap: 1rem;
 }
 
-.btn-save {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 15px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-}
-
-.btn-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.btn-cancel {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 15px;
-    transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-    transform: translateY(-2px);
-}
-
-/* Основная область профиля */
-.profile-main {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    height: auto;
-    min-height: fit-content;
+.edit-actions .btn {
+    flex: 1;
+    margin-bottom: 0;
 }
 
 /* Алерты */
@@ -299,12 +478,6 @@
 /* Форма профиля */
 .profile-form {
     max-width: 100%;
-}
-
-.profile-section {
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #e9ecef;
 }
 
 .profile-section:last-child {

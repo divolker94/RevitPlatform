@@ -95,6 +95,17 @@
     margin-bottom: 0.25rem;
 }
 
+.item-type {
+    color: #28a745;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: #d4edda;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
 .item-actions {
     display: flex;
     flex-direction: column;

@@ -73,7 +73,12 @@ function Home() {
 
     const handleStartNow = () => {
         if (isAuthenticated) {
-            navigate('/projects');
+            // У заказчиков переход на заказы, у специалистов - на проекты
+            if (userData.user_type === 'specialist') {
+                navigate('/projects');
+            } else {
+                navigate('/orders');
+            }
         } else {
             navigate('/login');
         }
@@ -98,10 +103,10 @@ function Home() {
                                 Рады вас видеть здесь, {userData.last_name || ''} {userData.first_name?.charAt(0) || ''}.{userData.middle_name ? userData.middle_name.charAt(0) + '.' : ''}
                             </h3>
                             <Link 
-                                to="/projects" 
+                                to={userData.user_type === 'specialist' ? '/projects' : '/orders'} 
                                 className="cta-button"
                             >
-                                Перейти к проектам
+                                {userData.user_type === 'specialist' ? 'Перейти к проектам' : 'Перейти к заказам'}
                             </Link>
                         </div>
                     ) : (
@@ -136,13 +141,17 @@ function Home() {
                     <div className="col-md-4 mb-4">
                         <div className="card h-100">
                             <div className="card-body">
-                                <h5 className="card-title"><FaProjectDiagram /> Проекты Revit</h5>
+                                <h5 className="card-title">
+                                    <FaProjectDiagram /> {userData.user_type === 'specialist' ? 'Проекты Revit' : 'Мои заказы'}
+                                </h5>
                                 <p className="card-text">
-                                    Управляйте своими Revit проектами, делитесь ими с командой
-                                    и отслеживайте изменения.
+                                    {userData.user_type === 'specialist' 
+                                        ? 'Управляйте своими Revit проектами, делитесь ими с командой и отслеживайте изменения.'
+                                        : 'Просматривайте и управляйте своими заказами, отслеживайте статус выполнения.'
+                                    }
                                 </p>
-                                <Link to="/projects" className="btn btn-outline-primary">
-                                    Перейти к проектам
+                                <Link to={userData.user_type === 'specialist' ? '/projects' : '/orders'} className="btn btn-outline-primary">
+                                    {userData.user_type === 'specialist' ? 'Перейти к проектам' : 'Перейти к заказам'}
                                 </Link>
                             </div>
                         </div>

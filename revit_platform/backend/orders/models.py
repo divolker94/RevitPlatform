@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
+import os
 
 User = get_user_model()
 
@@ -69,6 +70,10 @@ class Order(models.Model):
         related_name='managed_orders'
     )
     
+    # Комментарии
+    customer_comment = models.TextField(blank=True, verbose_name='Комментарий заказчика')
+    comment_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата комментария')
+    
     class Meta:
         ordering = ['-created_at']
     
@@ -77,17 +82,31 @@ class Order(models.Model):
     
     def calculate_final_cost(self):
         """Расчет финальной стоимости с учетом всех коэффициентов"""
+        from decimal import Decimal
+        
+        # Автоматически рассчитываем базовую стоимость из архитектурных проектов
+        if not self.base_cost:
+            architectural_projects_cost = sum(
+                item.total_cost for item in self.order_items.all() 
+                if item.architectural_project
+            )
+            self.base_cost = architectural_projects_cost
+        
         # Базовый расчет
         cost = self.base_cost
         
         # Применяем коэффициент типа работ
         cost *= self.work_type_multiplier
         
-        # Применяем корректировку по площади
-        cost *= self.area_adjustment
+        # Применяем корректировку по площади (приводим к Decimal)
+        area_adjustment = Decimal(str(self.area_adjustment))
+        cost *= area_adjustment
         
-        # Добавляем стоимость выбранных BIM-семейств
-        family_cost = sum(item.total_cost for item in self.order_families.all())
+        # Добавляем стоимость BIM-семейств
+        family_cost = sum(
+            item.total_cost for item in self.order_items.all() 
+            if item.bim_family
+        )
         cost += family_cost
         
         self.final_cost = cost
@@ -160,24 +179,66 @@ class OrderDocument(models.Model):
         return f"{self.title} - {self.order.order_number}"
 
 class OrderPayment(models.Model):
-    """История платежей по заказу"""
+    """Платежи по заказам"""
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     payment_type = models.CharField(max_length=20, choices=[
         ('advance', 'Аванс'),
-        ('final', 'Финальная оплата'),
-        ('refund', 'Возврат'),
+        ('final', 'Финальный платеж'),
     ])
+    payment_method = models.CharField(max_length=50, blank=True)
     transaction_id = models.CharField(max_length=100, blank=True)
-    payment_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Ожидает'),
         ('completed', 'Завершен'),
         ('failed', 'Неудачен'),
     ], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
-        return f"Платеж {self.amount} для заказа {self.order.order_number}"
+        return f"Платеж {self.payment_type} - {self.amount} ₽ для заказа {self.order.order_number}"
+
+
+class OrderFile(models.Model):
+    """Файлы, прикрепленные к заказам"""
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='order_files/%Y/%m/%d/', verbose_name='Файл')
+    title = models.CharField(max_length=200, verbose_name='Название файла')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    uploaded_by = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='uploaded_files',
+        verbose_name='Загрузил'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата загрузки')
+    file_type = models.CharField(
+        max_length=50, 
+        choices=[
+            ('sketch', 'Эскиз'),
+            ('draft', 'Чертеж'),
+            ('final', 'Финальный файл'),
+            ('other', 'Другое'),
+        ],
+        default='other',
+        verbose_name='Тип файла'
+    )
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name = 'Файл заказа'
+        verbose_name_plural = 'Файлы заказов'
+    
+    def __str__(self):
+        return f"{self.title} - {self.order.order_number}"
+    
+    def filename(self):
+        """Получить имя файла без пути"""
+        return os.path.basename(self.file.name)
 
 class BIMFamilyCategory(models.Model):
     """Категории для BIM-семейств"""

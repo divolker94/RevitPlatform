@@ -48,6 +48,13 @@ class User(AbstractUser):
     role_selected = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)
     
+    # Поле для определения типа специалиста (заказчик/подрядчик)
+    USER_ROLE_CHOICES = (
+        ('customer', 'Заказчик'),
+        ('contractor', 'Подрядчик'),
+    )
+    user_role = models.CharField(max_length=20, choices=USER_ROLE_CHOICES, default='customer', null=True, blank=True, verbose_name='Тип специалиста')
+    
     # Поле для аватара
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, verbose_name=_('Avatar'))
     

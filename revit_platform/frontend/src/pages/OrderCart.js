@@ -152,7 +152,7 @@ const OrderCart = () => {
         setError('');
 
         try {
-            const token = localStorage.getItem('access_token');
+            const token = localStorage.getItem('token');
             
             // Создаем заказ
             const orderResponse = await fetch('http://localhost:8000/api/orders/orders/', {
@@ -171,10 +171,20 @@ const OrderCart = () => {
             });
 
             if (!orderResponse.ok) {
+                const errorData = await orderResponse.json();
+                console.error('OrderCart - Ошибка при создании заказа:', errorData);
                 throw new Error('Ошибка при создании заказа');
             }
 
             const order = await orderResponse.json();
+            console.log('OrderCart - Заказ создан:', order);
+            
+            // Проверяем, что заказ создан с ID
+            if (!order.id) {
+                throw new Error('Заказ создан без ID');
+            }
+            
+            console.log('OrderCart - ID заказа:', order.id);
 
             // Добавляем элементы заказа
             for (const item of cartItems) {
@@ -184,6 +194,9 @@ const OrderCart = () => {
                     quantity: item.quantity,
                     notes: ''
                 };
+
+                console.log('OrderCart - Добавляем элемент заказа:', itemData);
+                console.log('OrderCart - URL для add_item:', `http://localhost:8000/api/orders/orders/${order.id}/add_item/`);
 
                 await fetch(`http://localhost:8000/api/orders/orders/${order.id}/add_item/`, {
                     method: 'POST',
@@ -231,11 +244,22 @@ const OrderCart = () => {
             const event = new CustomEvent('cartUpdated', { detail: { totalItems: 0 } });
             window.dispatchEvent(event);
 
-            setSuccess('Заказ успешно создан!');
+            setSuccess('Заказ успешно создан! Через 2 секунды вы будете перенаправлены на страницу "Мои заказы".');
             
-            // Перенаправляем на страницу заказа
+            console.log('OrderCart - Заказ создан, готовимся к перенаправлению...');
+            
+            // Перенаправляем на страницу "Мои заказы"
             setTimeout(() => {
-                navigate(`/orders/${order.id}`);
+                console.log('OrderCart - Выполняем перенаправление на /orders');
+                console.log('OrderCart - navigate функция:', typeof navigate);
+                try {
+                    navigate('/orders');
+                    console.log('OrderCart - Перенаправление выполнено');
+                } catch (error) {
+                    console.error('OrderCart - Ошибка при перенаправлении:', error);
+                    // Попробуем альтернативный способ
+                    window.location.href = '/orders';
+                }
             }, 2000);
 
         } catch (error) {
@@ -291,51 +315,69 @@ const OrderCart = () => {
                 <div className="cart-items-section">
                     <h2>Выбранные элементы ({cartItems.length})</h2>
                     
-                    <div className="cart-items">
-                        {cartItems.map((item, index) => (
-                            <div key={`${item.itemType}-${item.itemId}`} className="cart-item">
-                                <div className="item-info">
-                                    <h4>{item.itemName}</h4>
-                                    <p className="item-category">{item.itemCategory}</p>
-                                    <p className="item-cost">
-                                        Стоимость: {formatCurrency(item.itemCost)}
-                                    </p>
-                                    {item.itemArea && (
-                                        <p className="item-area">
-                                            Площадь: {item.itemArea} м²
+                    {cartItems.length === 0 ? (
+                        <div className="empty-cart">
+                            <p>Ваша корзина пуста</p>
+                            <p>Добавьте архитектурные проекты или BIM-семейства из каталога</p>
+                            <div className="cart-links">
+                                <a href="/architectural-projects" className="cart-link">
+                                    Перейти к архитектурным проектам
+                                </a>
+                                <a href="/families" className="cart-link">
+                                    Перейти к BIM-семействам
+                                </a>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="cart-items">
+                            {cartItems.map((item, index) => (
+                                <div key={`${item.itemType}-${item.itemId}`} className="cart-item">
+                                    <div className="item-info">
+                                        <h4>{item.itemName}</h4>
+                                        <p className="item-category">{item.itemCategory}</p>
+                                        <p className="item-cost">
+                                            Стоимость: {formatCurrency(item.itemCost)}
                                         </p>
-                                    )}
-                                </div>
-                                
-                                <div className="item-actions">
-                                    <div className="quantity-controls">
-                                        <button 
-                                            onClick={() => updateQuantity(item.itemType, item.itemId, item.quantity - 1)}
-                                            disabled={item.quantity <= 1}
-                                            className="quantity-btn"
-                                        >
-                                            -
-                                        </button>
-                                        <span className="quantity">{item.quantity}</span>
-                                        <button 
-                                            onClick={() => updateQuantity(item.itemType, item.itemId, item.quantity + 1)}
-                                            className="quantity-btn"
-                                        >
-                                            +
-                                        </button>
+                                        {item.itemArea && (
+                                            <p className="item-area">
+                                                Площадь: {item.itemArea} м²
+                                            </p>
+                                        )}
+                                        <p className="item-type">
+                                            Тип: {item.itemType === 'architectural_project' ? 'Архитектурный проект' : 'BIM-семейство'}
+                                        </p>
                                     </div>
                                     
-                                    <button 
-                                        onClick={() => removeFromCart(item.itemType, item.itemId)}
-                                        className="remove-btn"
-                                        title="Убрать из корзины"
-                                    >
-                                        <FaTrash />
-                                    </button>
+                                    <div className="item-actions">
+                                        <div className="quantity-controls">
+                                            <button 
+                                                onClick={() => updateQuantity(item.itemType, item.itemId, item.quantity - 1)}
+                                                disabled={item.quantity <= 1}
+                                                className="quantity-btn"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="quantity">{item.quantity}</span>
+                                            <button 
+                                                onClick={() => updateQuantity(item.itemType, item.itemId, item.quantity + 1)}
+                                                className="quantity-btn"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        
+                                        <button 
+                                            onClick={() => removeFromCart(item.itemType, item.itemId)}
+                                            className="remove-btn"
+                                            title="Убрать из корзины"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="order-form-section">

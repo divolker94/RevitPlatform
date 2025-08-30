@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory
+from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory, OrderFile
 from architectural_projects.models import ArchitecturalProject
 from bim_families.models import BimFamily
 
@@ -7,6 +7,15 @@ class BIMFamilyCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BIMFamilyCategory
         fields = '__all__'
+
+class OrderFileSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    filename = serializers.CharField(source='filename', read_only=True)
+    
+    class Meta:
+        model = OrderFile
+        fields = '__all__'
+        read_only_fields = ('uploaded_by', 'uploaded_at')
 
 class OrderItemSerializer(serializers.ModelSerializer):
     architectural_project_name = serializers.CharField(source='architectural_project.name', read_only=True)
@@ -31,6 +40,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True, source='order_items')
     documents = OrderDocumentSerializer(many=True, read_only=True)
     payments = OrderPaymentSerializer(many=True, read_only=True)
+    files = OrderFileSerializer(many=True, read_only=True)
     customer_name = serializers.CharField(source='customer.get_full_name', read_only=True)
     manager_name = serializers.CharField(source='assigned_manager.get_full_name', read_only=True)
     
@@ -38,6 +48,15 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = '__all__'
         read_only_fields = ('order_number', 'final_cost', 'advance_paid', 'final_payment_paid')
+    
+    def to_representation(self, instance):
+        """Автоматически рассчитываем стоимость при сериализации"""
+        # Рассчитываем стоимость, если она не установлена
+        if not instance.final_cost:
+            instance.calculate_final_cost()
+            instance.save()
+        
+        return super().to_representation(instance)
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, required=False)
@@ -52,6 +71,19 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         
         # Создаем элементы заказа
         for item_data in items_data:
+            # Если это архитектурный проект, получаем его стоимость
+            if item_data.get('architectural_project'):
+                project = ArchitecturalProject.objects.get(id=item_data['architectural_project'])
+                item_data['base_cost'] = project.design_cost
+                item_data['unit_cost'] = project.design_cost
+                item_data['total_cost'] = project.design_cost * item_data.get('quantity', 1)
+            # Если это BIM-семейство, получаем его стоимость
+            elif item_data.get('bim_family'):
+                family = BimFamily.objects.get(id=item_data['bim_family'])
+                item_data['base_cost'] = family.base_cost
+                item_data['unit_cost'] = family.base_cost
+                item_data['total_cost'] = family.base_cost * item_data.get('quantity', 1)
+            
             OrderItem.objects.create(order=order, **item_data)
         
         # Рассчитываем стоимость

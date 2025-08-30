@@ -17,70 +17,35 @@ function Header() {
     const navigate = useNavigate();
 
     const loadUserProfile = async () => {
-        if (isAuthenticated) {
-            try {
-                const token = localStorage.getItem('token');
-                const userResponse = await fetch('http://localhost:8000/api/auth/users/me/', {
+        if (!isAuthenticated) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Загружаем основную информацию о пользователе
+                const userResponse = await fetch('http://localhost:8000/api/accounts/users/me/', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 });
-
+                
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
+                    console.log('Основные данные пользователя:', userData);
+                    console.log('user_type:', userData.user_type);
+                    console.log('user_role:', userData.user_role);
+                    console.log('specialist_type:', userData.specialist_type);
                     setUserData(userData);
-
-                    // Загружаем профиль в зависимости от типа пользователя
+                    
+                    // Если это специалист, specialist_type уже должен быть в userData
                     if (userData.user_type === 'specialist') {
-                        const specialistResponse = await fetch('http://localhost:8000/api/specialists/me/', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                                            if (specialistResponse.ok) {
-                        const specialistData = await specialistResponse.json();
-                        // Объединяем данные пользователя с данными профиля специалиста
-                        setUserData(prev => ({ 
-                            ...prev, 
-                            ...specialistData,
-                            first_name: prev.first_name || specialistData.first_name || '',
-                            last_name: prev.last_name || specialistData.last_name || '',
-                            phone: prev.phone || specialistData.phone || ''
-                        }));
-                    }
-                    } else if (userData.user_type === 'legal') {
-                        const legalResponse = await fetch('http://localhost:8000/api/clients/legal-entities/', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        if (legalResponse.ok) {
-                            const legalData = await legalResponse.json();
-                            if (legalData.length > 0) {
-                                setUserData(prev => ({ ...prev, ...legalData[0] }));
-                            }
-                        }
-                    } else if (userData.user_type === 'individual') {
-                        const individualResponse = await fetch('http://localhost:8000/api/clients/individuals/', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        if (individualResponse.ok) {
-                            const individualData = await individualResponse.json();
-                            if (individualData.length > 0) {
-                                setUserData(prev => ({ ...prev, ...individualData[0] }));
-                            }
-                        }
+                        console.log('Тип специалиста:', userData.specialist_type);
                     }
                 }
-            } catch (error) {
-                console.error('Error loading user profile:', error);
             }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
         }
     };
 
@@ -157,22 +122,20 @@ function Header() {
                 <Link to="/families" className={`nav-link ${isActivePath('/families') ? 'active' : ''}`}>Каталог BIM семейств</Link>
                 {isAuthenticated && (
                     <>
-                        {/* Для BIM-специалистов и подрядчиков - личные проекты */}
-                        {((userData.user_type === 'specialist') || 
-                          (userData.user_type === 'legal' && userData.client_type === 'contractor') ||
-                          (userData.user_type === 'individual' && userData.client_type === 'contractor')) && (
-                            <Link to="/projects" className={`nav-link ${isActivePath('/projects') ? 'active' : ''}`}>Личные проекты</Link>
+                        {/* Для всех BIM-специалистов - личные проекты */}
+                        {userData.user_type === 'specialist' && (
+                            <Link to="/projects" className={`nav-link ${isActivePath('/projects') ? 'active' : ''}`}>Мои проекты</Link>
                         )}
                         
-                        {/* Для BIM-менеджеров - управление заказами */}
+                        {/* Для BIM-менеджеров - заказы заказчиков */}
                         {(userData.user_type === 'specialist' && userData.specialist_type === 'manager') && (
-                            <Link to="/order-management" className={`nav-link ${isActivePath('/order-management') ? 'active' : ''}`}>Управление заказами</Link>
+                            <Link to="/manager-orders" className={`nav-link ${isActivePath('/manager-orders') ? 'active' : ''}`}>Заказы заказчиков</Link>
                         )}
                         
                         {/* Для заказчиков - заказы */}
-                        {((userData.user_type === 'legal' && userData.client_type === 'customer') ||
-                          (userData.user_type === 'individual' && userData.client_type === 'customer')) && (
-                            <Link to="/orders" className={`nav-link ${isActivePath('/orders') ? 'active' : ''}`}>Мои заказы</Link>
+                        {((userData.user_type === 'legal' && userData.user_role === 'customer') ||
+                          (userData.user_type === 'individual' && userData.user_role === 'customer')) && (
+                            <Link to="/order-list" className={`nav-link ${isActivePath('/order-list') ? 'active' : ''}`}>Мои заказы</Link>
                         )}
                     </>
                 )}
@@ -191,10 +154,10 @@ function Header() {
                                             userData.specialist_type === 'manager' ? 'BIM-менеджер' : 'Исполнитель'
                                         )}
                                         {userData.user_type === 'legal' && (
-                                            userData.client_type === 'customer' ? 'Заказчик' : 'Подрядчик'
+                                            userData.user_role === 'customer' ? 'Заказчик' : 'Подрядчик'
                                         )}
                                         {userData.user_type === 'individual' && (
-                                            userData.client_type === 'customer' ? 'Заказчик' : 'Подрядчик'
+                                            userData.user_role === 'customer' ? 'Заказчик' : 'Подрядчик'
                                         )}
                                     </span>
                                     {' • '}
@@ -208,13 +171,17 @@ function Header() {
                                 </span>
                             </Link>
                             
-                            {/* Корзина заказов */}
-                            <Link to="/order-cart" className="cart-link">
-                                <FaShoppingCart />
-                                {cartItemsCount > 0 && (
-                                    <span className="cart-counter">{cartItemsCount}</span>
-                                )}
-                            </Link>
+                            {/* Корзина заказов - только для заказчиков */}
+                            {((userData.user_type === 'legal' && userData.user_role === 'customer') ||
+                              (userData.user_type === 'individual' && userData.user_role === 'customer') ||
+                              (userData.user_type === 'specialist' && userData.specialist_type === 'executor')) && (
+                                <Link to="/order-cart" className="cart-link">
+                                    <FaShoppingCart />
+                                    {cartItemsCount > 0 && (
+                                        <span className="cart-counter">{cartItemsCount}</span>
+                                    )}
+                                </Link>
+                            )}
                             
                             {/* Кнопка выхода */}
                             <button onClick={handleLogout} className="logout-button">

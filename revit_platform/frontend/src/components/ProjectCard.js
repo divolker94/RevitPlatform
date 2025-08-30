@@ -202,7 +202,7 @@ const ProjectCard = ({ project }) => {
                 <div className="project-actions">
                     {/* Кнопка "В заказ" */}
                     <AddToOrderButton
-                        itemType="architectural"
+                        itemType="architectural_project"
                         itemId={project.id}
                         itemName={project.name}
                         itemCost={project.design_cost}

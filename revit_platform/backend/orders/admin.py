@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory
+from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory, OrderFile
 
 @admin.register(BIMFamilyCategory)
 class BIMFamilyCategoryAdmin(admin.ModelAdmin):
@@ -53,6 +53,13 @@ class OrderDocumentAdmin(admin.ModelAdmin):
 
 @admin.register(OrderPayment)
 class OrderPaymentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'order', 'amount', 'payment_type', 'status', 'payment_date']
-    list_filter = ['payment_type', 'status', 'payment_date']
+    list_display = ['id', 'order', 'amount', 'payment_type', 'status', 'created_at']
+    list_filter = ['payment_type', 'status', 'created_at']
     search_fields = ['order__order_number', 'transaction_id']
+
+@admin.register(OrderFile)
+class OrderFileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'order', 'title', 'file_type', 'uploaded_by', 'uploaded_at']
+    list_filter = ['file_type', 'uploaded_at']
+    search_fields = ['title', 'order__order_number', 'uploaded_by__email']
+    readonly_fields = ['uploaded_at']

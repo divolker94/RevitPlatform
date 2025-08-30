@@ -73,10 +73,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # Проверяем, содержит ли специализация пользователя разрешенные специализации
         user_specializations = [s.strip().lower() for s in user.specialist_profile.specialization.split(',')]
         allowed_specializations = [
-            'bim_manager', 'bim-менеджмент', 'bim менеджмент',
-            'architect', 'архитектурное проектирование', 'архитектурное проектирование',
-            'constructor', 'конструктивные решения', 'конструктивные решения',
-            'engineer', 'инженерные системы', 'инженерные системы',
+            'bim management', 'bim_manager', 'bim-менеджмент', 'bim менеджмент',
+            'architectural design', 'architect', 'архитектурное проектирование',
+            'structural engineering', 'constructor', 'конструктивные решения',
+            'engineering systems', 'engineer', 'инженерные системы',
             'bim-координация', 'bim координация',
             'генеральное проектирование',
             'проектирование фасадов',
@@ -90,12 +90,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'управление проектами'
         ]
         
-        # Проверяем, есть ли хотя бы одна разрешенная специализация
-        has_allowed_specialization = any(
-            user_spec in allowed_specializations or 
-            any(allowed in user_spec for allowed in allowed_specializations)
-            for user_spec in user_specializations
-        )
+        # BIM-менеджеры всегда могут создавать проекты
+        if user.specialist_profile.specialist_type == 'manager':
+            has_allowed_specialization = True
+        else:
+            # Проверяем, есть ли хотя бы одна разрешенная специализация для исполнителей
+            has_allowed_specialization = any(
+                user_spec in allowed_specializations or 
+                any(allowed in user_spec for allowed in allowed_specializations)
+                for user_spec in user_specializations
+            )
         
         if not has_allowed_specialization:
             raise PermissionDenied({

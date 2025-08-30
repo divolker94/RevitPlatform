@@ -42,12 +42,20 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.user_type == 'specialist' and hasattr(user, 'specialist_profile'):
             profile_data = SpecialistProfileSerializer(user.specialist_profile).data
             user_data['specialist_profile'] = profile_data
-        elif user.user_type == 'legal' and hasattr(user, 'legal_entity_client_profile'):
-            profile_data = LegalEntityClientSerializer(user.legal_entity_client_profile).data
-            user_data['legal_entity_profile'] = profile_data
-        elif user.user_type == 'individual' and hasattr(user, 'individual_client_profile'):
-            profile_data = IndividualClientSerializer(user.individual_client_profile).data
-            user_data['individual_profile'] = profile_data
+            # Добавляем specialist_type напрямую в user_data для удобства
+            user_data['specialist_type'] = user.specialist_profile.specialist_type
+        elif user.user_type == 'legal':
+            # Для юридических лиц всегда добавляем user_role
+            user_data['user_role'] = user.user_role
+            if hasattr(user, 'legal_entity_client_profile'):
+                profile_data = LegalEntityClientSerializer(user.legal_entity_client_profile).data
+                user_data['legal_entity_profile'] = profile_data
+        elif user.user_type == 'individual':
+            # Для физических лиц всегда добавляем user_role
+            user_data['user_role'] = user.user_role
+            if hasattr(user, 'individual_client_profile'):
+                profile_data = IndividualClientSerializer(user.individual_client_profile).data
+                user_data['individual_profile'] = profile_data
 
         return Response(user_data)
 
@@ -144,8 +152,12 @@ class RegisterView(APIView):
 
     def post(self, request):
         try:
+            # Подготавливаем данные для создания пользователя (исключаем specialist_type)
+            user_data = request.data.copy()
+            specialist_type = user_data.pop('specialist_type', None)  # Убираем specialist_type из данных пользователя
+            
             # Создаем базового пользователя
-            serializer = UserSerializer(data=request.data)
+            serializer = UserSerializer(data=user_data)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -153,12 +165,19 @@ class RegisterView(APIView):
             
             # Если указан тип пользователя при регистрации, создаем соответствующий профиль
             user_type = request.data.get('user_type')
+            user_role = request.data.get('user_role', 'customer')  # По умолчанию заказчик
+            
             if user_type == 'specialist':
                 # Создаем профиль специалиста с данными из регистрации
+                specialist_type = specialist_type or 'executor'  # Используем сохраненный тип или по умолчанию
+                
+                # Устанавливаем валидную специализацию по умолчанию
+                default_specialization = 'BIM management' if specialist_type == 'manager' else 'architectural design'
+                
                 specialist_profile = SpecialistProfile.objects.create(
                     user=user,
-                    specialist_type='executor',  # По умолчанию
-                    specialization='Не указано',
+                    specialist_type=specialist_type,  # Используем сохраненный тип
+                    specialization=default_specialization,
                     experience='Не указано',
                     about='Не указано',
                     availability='Не указано',
@@ -167,6 +186,12 @@ class RegisterView(APIView):
                 )
                 
                 # Устанавливаем тип пользователя
+                user.user_type = user_type
+                user.role_selected = True
+                user.save()
+            else:
+                # Для физических и юридических лиц устанавливаем user_role
+                user.user_role = user_role
                 user.user_type = user_type
                 user.role_selected = True
                 user.save()
