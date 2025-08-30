@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import OrderForm from './components/OrderForm'; // Import OrderForm component
+import OrderList from './components/OrderList'; // Import OrderList component
 import ArchitecturalProjects from './pages/ArchitecturalProjects';
 import Footer from './components/Footer';
 import Projects from './pages/Projects';
@@ -10,6 +11,11 @@ import ProjectDetail from './pages/ProjectDetail';
 import Families from './pages/Families';
 import BimFamilyDetail from './pages/BimFamilyDetail';
 import Forum from './pages/Forum';
+import News from './pages/forum/News';
+import Tips from './pages/forum/Tips';
+import Technology from './pages/forum/Technology';
+import Training from './pages/forum/Training';
+import ForumPostDetail from './pages/ForumPostDetail';
 import Profile from './pages/Profile';
 import MyFamilies from './pages/MyFamilies';
 import About from './pages/About';
@@ -17,10 +23,12 @@ import Contact from './pages/Contact';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import './App.css';
-import UserTypeSelect from './components/UserTypeSelect';
+
 import CompanyProfile from './components/CompanyProfile'; // Импорт переименованного компонента
 import ClientProfile from './components/ClientProfile'; // Импорт переименованного компонента
 import BimSpecialistProfile from './components/BimSpecialistProfile'; // Импорт переименованного компонента
+import OrderCart from './pages/OrderCart';
+import ManagerOrders from './components/ManagerOrders';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
@@ -49,17 +57,26 @@ function App() {
                         <Route path="/architectural-projects" element={<ArchitecturalProjects />} />
                         <Route path="/architectural-projects/:id" element={<ProjectDetail />} />
                         <Route path="/order" element={<OrderForm />} />
+                        <Route path="/order-list" element={<OrderList />} />
+                        <Route path="/orders" element={<OrderList />} />
                         <Route path="/families" element={<Families />} />
                         <Route path="/bim-families/:id" element={<BimFamilyDetail />} />
                         <Route path="/blog" element={<Forum />} />
-                        <Route path="/forum/news" element={<Forum />} />
+                        <Route path="/forum" element={<Forum />} />
+                        <Route path="/forum/news" element={<News />} />
+                        <Route path="/forum/tips" element={<Tips />} />
+                        <Route path="/forum/technology" element={<Technology />} />
+                        <Route path="/forum/training" element={<Training />} />
+                        <Route path="/forum/post/:id" element={<ForumPostDetail />} />
+                        <Route path="/order-cart" element={<OrderCart />} />
+                        <Route path="/manager-orders" element={<ManagerOrders />} />
 
                         {/* Previously protected routes, now public */}
                         <Route path="/projects" element={<Projects />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/my-projects" element={<Projects />} />
                         <Route path="/my-families" element={<MyFamilies />} />
-                        <Route path="/select-user-type" element={<UserTypeSelect />} />
+
                         <Route path="/legal-entity-profile" element={<CompanyProfile />} />
                         <Route path="/individual-profile" element={<ClientProfile />} />
                         <Route path="/specialist-profile" element={<BimSpecialistProfile />} />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AddToOrderButton from '../components/AddToOrderButton';
 import './BimFamilyDetail.css';
 
 function BimFamilyDetail() {
@@ -46,6 +47,16 @@ function BimFamilyDetail() {
     const formatCatalogItems = (items) => {
         if (!items || !Array.isArray(items)) return [];
         return items;
+    };
+    
+    const formatBasicSpecs = (specs) => {
+        if (!specs || typeof specs === 'string') return {};
+        
+        try {
+            return typeof specs === 'string' ? JSON.parse(specs) : specs;
+        } catch {
+            return {};
+        }
     };
     
     // Функция для получения правильного пути к изображению
@@ -99,6 +110,7 @@ function BimFamilyDetail() {
     }
 
     const technicalSpecs = formatTechnicalSpecs(family.technical_specs);
+    const basicSpecs = formatBasicSpecs(family.basic_specs);
     const catalogItems = formatCatalogItems(family.catalog_items);
 
     return (
@@ -117,8 +129,8 @@ function BimFamilyDetail() {
                 </nav>
 
                 <div className="row">
-                    {/* Галерея изображений - увеличиваем размер */}
-                    <div className="col-lg-9">
+                    {/* Галерея изображений - первая колонка */}
+                    <div className="col-lg-4">
                         <div className="family-gallery">
                             {family.images && family.images.length > 0 ? (
                                 <>
@@ -160,16 +172,17 @@ function BimFamilyDetail() {
                         </div>
                     </div>
 
-                    {/* Информация о семействе - увеличиваем размер */}
-                    <div className="col-lg-3">
+                    {/* Основная информация о семействе - вторая колонка */}
+                    <div className="col-lg-4">
                         <div className="family-info">
                             <h1 className="family-title">{family.name}</h1>
                             
+                            <div className="family-description">
+                                <h5>Описание</h5>
+                                <p>{family.description}</p>
+                            </div>
+                            
                             <div className="family-meta">
-                                <span className="meta-item">
-                                    <i className="fas fa-calendar"></i>
-                                    Парсинг: {family.parsed_at}
-                                </span>
                                 {family.total_images > 0 && (
                                     <span className="meta-item">
                                         <i className="fas fa-images"></i>
@@ -206,18 +219,44 @@ function BimFamilyDetail() {
                                 </div>
                             </div>
 
-                            <div className="family-description">
-                                <h5>Описание</h5>
-                                <p>{family.description}</p>
+                            {/* Кнопки действий */}
+                            <div className="family-actions">
+                                <button className="btn btn-primary btn-lg w-100 mb-2">
+                                    <i className="fas fa-download"></i> Скачать семейство
+                                </button>
+                                <button className="btn btn-outline-secondary w-100 mb-2">
+                                    <i className="fas fa-share"></i> Поделиться
+                                </button>
+                                <AddToOrderButton
+                                    itemType="bim_family"
+                                    itemId={family.id}
+                                    itemName={family.name}
+                                    itemCost={family.cost || 0}
+                                    itemArea={family.area || 0}
+                                    itemCategory={family.category?.name || family.family_type}
+                                />
+                            </div>
+                        </div>
                             </div>
 
+                    {/* Дополнительная информация - третья колонка */}
+                    <div className="col-lg-4">
+                        <div className="family-details">
                             {/* Технические характеристики */}
-                            {Object.keys(technicalSpecs).length > 0 && (
+                            {(Object.keys(technicalSpecs).length > 0 || Object.keys(basicSpecs).length > 0) && (
                                 <div className="technical-specs">
                                     <h5>Технические характеристики</h5>
                                     <div className="specs-list">
+                                        {/* Сначала показываем базовые характеристики (включая материал) */}
+                                        {Object.entries(basicSpecs).map(([key, value]) => (
+                                            <div key={`basic-${key}`} className="spec-item">
+                                                <span className="spec-key">{key}:</span>
+                                                <span className="spec-value">{value}</span>
+                                            </div>
+                                        ))}
+                                        {/* Затем показываем технические характеристики */}
                                         {Object.entries(technicalSpecs).map(([key, value]) => (
-                                            <div key={key} className="spec-item">
+                                            <div key={`tech-${key}`} className="spec-item">
                                                 <span className="spec-key">{key}:</span>
                                                 <span className="spec-value">{value}</span>
                                             </div>
@@ -238,6 +277,16 @@ function BimFamilyDetail() {
                                 </div>
                             )}
 
+                            {/* Документация */}
+                            {family.download_info && family.download_info.documentation && (
+                                <div className="documentation-info">
+                                    <h5>Документация</h5>
+                                    <div className="documentation-details">
+                                        <p>{family.download_info.documentation}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Компания */}
                             {family.company_info && (
                                 <div className="company-info">
@@ -252,19 +301,17 @@ function BimFamilyDetail() {
                                         {family.company_info.email && (
                                             <p><strong>Email:</strong> {family.company_info.email}</p>
                                         )}
+                                        {family.url && (
+                                            <p>
+                                                <strong>Сайт:</strong> 
+                                                <a href={family.url} target="_blank" rel="noopener noreferrer" className="company-website">
+                                                    {family.url.replace(/^https?:\/\//, '')}
+                                                </a>
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             )}
-
-                            {/* Кнопки действий */}
-                            <div className="family-actions">
-                                <button className="btn btn-primary btn-lg w-100 mb-2">
-                                    <i className="fas fa-download"></i> Скачать семейство
-                                </button>
-                                <button className="btn btn-outline-secondary w-100">
-                                    <i className="fas fa-share"></i> Поделиться
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

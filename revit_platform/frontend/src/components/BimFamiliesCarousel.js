@@ -57,17 +57,16 @@ function BimFamiliesCarousel() {
     // Функция для получения правильного пути к изображению
     const getImagePath = (family) => {
         if (!family.images || family.images.length === 0) {
-            return '/images/placeholder-family.png';
+            return '/images/bim_families/placeholder-family.png';
         }
         
         const firstImage = family.images[0];
         if (!firstImage.local_path) {
-            return '/images/placeholder-family.png';
+            return '/images/bim_families/placeholder-family.png';
         }
         
-        // Теперь путь уже содержит правильную структуру: images/bim_families/00001/filename.jpg
-        // Просто добавляем слеш в начало
-        return `/${firstImage.local_path}`;
+        // Путь к изображению в папке frontend/public/images/bim_families
+        return `/images/bim_families/${firstImage.local_path}`;
     };
 
     if (loading) {
@@ -111,7 +110,7 @@ function BimFamiliesCarousel() {
                                                 src={getImagePath(family)} 
                                                 alt={family.name}
                                                 onError={(e) => {
-                                                    e.target.src = '/images/placeholder-family.png';
+                                                    e.target.src = '/images/bim_families/placeholder-family.png';
                                                 }}
                                             />
                                         </div>

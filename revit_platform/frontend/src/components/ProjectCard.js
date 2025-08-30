@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import './ProjectCard.css';
 import { useNavigate } from 'react-router-dom';
+import AddToOrderButton from './AddToOrderButton';
+import { FaShoppingCart, FaEye } from 'react-icons/fa';
 
 const ProjectCard = ({ project }) => {
     const [imageError, setImageError] = useState(false);
@@ -12,6 +14,7 @@ const ProjectCard = ({ project }) => {
         average: project.rating_average || 0,
         count: project.rating_count || 0
     });
+    const [userData, setUserData] = useState(null);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('ru-RU', {
@@ -41,6 +44,26 @@ const ProjectCard = ({ project }) => {
             });
     }, [project.id]);
 
+    // Загружаем данные пользователя
+    useEffect(() => {
+        const loadUserData = async () => {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                try {
+                    const response = await axios.get('http://localhost:8000/api/auth/users/me/', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        }
+                    });
+                    setUserData(response.data);
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+        };
+        loadUserData();
+    }, []);
+
     const handleImageError = (e) => {
         console.log('Image load failed:', e.target.src);
         setImageError(true);
@@ -50,6 +73,11 @@ const ProjectCard = ({ project }) => {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
+        navigate(`/architectural-projects/${project.id}`);
+    };
+
+    const handleDetailClick = (e) => {
+        e.stopPropagation();
         navigate(`/architectural-projects/${project.id}`);
     };
 
@@ -94,7 +122,7 @@ const ProjectCard = ({ project }) => {
     };
 
     return (
-        <div className="project-card" onClick={handleCardClick}>
+        <div className="project-card">
             <div className="project-image">
                 {/* Название проекта в верхнем углу изображения */}
                 <div className="project-title-overlay">
@@ -169,6 +197,29 @@ const ProjectCard = ({ project }) => {
                         <span className="rating-count">({projectRating.count})</span>
                     </div>
                 )}
+
+                {/* Кнопки действий */}
+                <div className="project-actions">
+                    {/* Кнопка "В заказ" */}
+                    <AddToOrderButton
+                        itemType="architectural_project"
+                        itemId={project.id}
+                        itemName={project.name}
+                        itemCost={project.design_cost}
+                        itemArea={project.total_area}
+                        itemCategory={project.category}
+                    />
+                    
+                    {/* Кнопка "Ознакомиться" */}
+                    <button 
+                        className="detail-btn"
+                        onClick={handleDetailClick}
+                        title="Ознакомиться"
+                    >
+                        <FaEye />
+                        <span>Ознакомиться</span>
+                    </button>
+                </div>
             </div>
         </div>
     );

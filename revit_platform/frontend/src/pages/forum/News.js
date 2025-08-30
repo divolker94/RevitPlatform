@@ -1,56 +1,115 @@
 import React from 'react';
-import '../Forum.css';
+import { useNavigate } from 'react-router-dom';
+import './News.css';
 
 function News() {
+    const navigate = useNavigate();
+
     const newsArticles = [
         {
             id: 1,
-            title: 'Новые возможности Revit 2024',
-            date: '2024-03-01',
-            author: 'Администратор',
-            preview: 'Обзор ключевых обновлений и функций в новой версии Revit 2025...',
-            image: '/images/blog/revit-2024.jpg',
+            title: 'Новые возможности Revit 2025',
+            preview: 'Обзор новых функций и возможностей Revit 2025, которые помогут архитекторам и инженерам работать более эффективно.',
+            image: '/images/forum/Новые возможности Revit 2025.png',
             category: 'Новости'
         },
         {
-            id: 4,
-            title: 'Обновление RevitPlatform',
-            date: '2024-02-20',
-            author: 'Администратор',
-            preview: 'Важные изменения и улучшения в нашей платформе...',
-            image: '/images/blog/platform-update.jpg',
+            id: 2,
+            title: 'Обновление BIM стандартов',
+            preview: 'Анализ последних изменений в международных стандартах BIM и их влияние на российские проекты.',
+            image: '/images/forum/Новые возможности Revit 2025.png',
+            category: 'Новости'
+        },
+        {
+            id: 3,
+            title: 'Конференция по BIM технологиям',
+            preview: 'Анонс крупнейшей конференции по BIM технологиям в России с участием ведущих экспертов отрасли.',
+            image: '/images/forum/Новые возможности Revit 2025.png',
             category: 'Новости'
         }
     ];
 
+    const handleCategoryClick = (category) => {
+        switch(category) {
+            case 'Новости':
+                navigate('/forum/news');
+                break;
+            case 'Советы':
+                navigate('/forum/tips');
+                break;
+            case 'Технологии':
+                navigate('/forum/technology');
+                break;
+            case 'Обучение':
+                navigate('/forum/training');
+                break;
+            default:
+                navigate('/forum');
+        }
+    };
+
     return (
-        <div className="forum-container">
-            <div className="forum-header">
-                <h1>Новости RevitPlatform</h1>
-                <p>Последние новости и обновления</p>
+        <div className="forum-page">
+            <div className="forum-background"></div>
+            <div className="forum-background-overlay"></div>
+
+            {/* Заголовок страницы */}
+            <div className="forum-page-header">
+                <h1>Новости</h1>
+                <p>Актуальные новости и события в мире BIM технологий</p>
             </div>
 
+            {/* Кнопки категорий */}
+            <div className="forum-categories">
+                <button 
+                    className="category-button active"
+                    onClick={() => handleCategoryClick('Новости')}
+                >
+                    Новости
+                </button>
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Советы')}
+                >
+                    Советы
+                </button>
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Технологии')}
+                >
+                    Технологии
+                </button>
+                <button 
+                    className="category-button"
+                    onClick={() => handleCategoryClick('Обучение')}
+                >
+                    Обучение
+                </button>
+            </div>
+
+            {/* Сетка новостей */}
             <div className="forum-grid">
                 {newsArticles.map(article => (
-                    <article key={article.id} className="forum-card">
+                    <div key={article.id} className="forum-card">
                         <div className="forum-card-image">
                             <img src={article.image} alt={article.title} />
-                            <span className="forum-category">{article.category}</span>
                         </div>
                         <div className="forum-card-content">
+                            <span className="forum-category">{article.category}</span>
                             <h2>{article.title}</h2>
-                            <p className="forum-preview">{article.preview}</p>
-                            <div className="forum-meta">
-                                <span className="forum-author">
-                                    <i className="fas fa-user"></i> {article.author}
-                                </span>
-                                <span className="forum-date">
-                                    <i className="fas fa-calendar"></i> {new Date(article.date).toLocaleDateString()}
-                                </span>
+                            <div className="forum-preview">
+                                <p>{article.preview}</p>
                             </div>
-                            <button className="read-more">Перейти к обсуждению</button>
+                            <div className="read-more">
+                                <button 
+                                    className="read-more-button"
+                                    onClick={() => navigate(`/forum/post/${article.id}`)}
+                                >
+                                    Перейти к обсуждению
+                                </button>
+                            </div>
                         </div>
-                    </article>
+                    </div>
                 ))}
             </div>
         </div>

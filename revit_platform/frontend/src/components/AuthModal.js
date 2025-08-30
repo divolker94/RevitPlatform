@@ -25,7 +25,7 @@ function AuthModal({ show, onHide, onLogin }) {
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
             
-            const userResponse = await axios.get('http://localhost:8000/api/auth/users/me/', {
+            const userResponse = await axios.get('http://localhost:8000/api/accounts/users/me/', {
                 headers: {
                     'Authorization': `Bearer ${response.data.access}`
                 }
@@ -61,10 +61,14 @@ function AuthModal({ show, onHide, onLogin }) {
                 password: formData.password,
                 re_password: formData.re_password,
                 first_name: formData.first_name,
-                last_name: formData.last_name
+                last_name: formData.last_name,
+                user_type: formData.user_type,
+                specialist_type: formData.specialist_type,
+                user_role: formData.user_role
             };
 
             console.log('Отправляем данные регистрации:', registrationData);
+            console.log('specialist_type:', formData.specialist_type);
 
             // Регистрируем пользователя через наш API
             const response = await axios.post(
@@ -98,9 +102,20 @@ function AuthModal({ show, onHide, onLogin }) {
 
             localStorage.setItem('access_token', loginResponse.data.access);
             localStorage.setItem('refresh_token', loginResponse.data.refresh);
-
-            console.log('Перенаправляем на выбор типа пользователя...');
-            navigate('/select-user-type');
+            
+            // Все пользователи сразу входят в систему и попадают на главную страницу
+            const userResponse = await axios.get('http://localhost:8000/api/accounts/users/me/', {
+                headers: {
+                    'Authorization': `Bearer ${loginResponse.data.access}`
+                }
+            });
+            
+            localStorage.setItem('username', userResponse.data.username);
+            localStorage.setItem('user_data', JSON.stringify(userResponse.data));
+            localStorage.setItem('token', loginResponse.data.access);
+            
+            onLogin(userResponse.data.username);
+            onHide();
 
         } catch (err) {
             console.error('Ошибка регистрации:', err);
@@ -166,7 +181,11 @@ function AuthModal({ show, onHide, onLogin }) {
     );
 
     const renderRegistrationForm = () => (
-        <SimpleRegistration onSubmit={handleRegistration} errors={errors} />
+        <SimpleRegistration 
+            onSubmit={handleRegistration} 
+            errors={errors} 
+            onClose={onHide}
+        />
     );
 
     if (!show) return null;

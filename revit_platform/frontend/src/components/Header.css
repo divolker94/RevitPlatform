@@ -21,8 +21,100 @@
 .logo {
     color: white;
     text-decoration: none;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
+}
+
+.profile-type-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-type {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    text-align: center;
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+.profile-type.specialist {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.profile-type.legal {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.profile-type.individual {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+}
+
+/* Новые стили для объединенного профиля */
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-button {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.profile-button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.profile-type-text {
+    color: #f8f9fa;
+}
+
+.profile-initials {
+    color: #e9ecef;
+    font-weight: 600;
+}
+
+.logout-button {
+    padding: 8px 16px;
+    background: rgba(220, 53, 69, 0.8);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 20px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    background: rgba(220, 53, 69, 1);
+    border-color: rgba(220, 53, 69, 0.5);
+    transform: translateY(-1px);
 }
 
 .search-container {
@@ -71,11 +163,15 @@
     text-decoration: none;
     font-size: 16px;
     opacity: 0.8;
-    transition: opacity 0.3s;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid transparent;
 }
 
 .header-nav a:hover {
     opacity: 1;
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .header-right {
@@ -86,22 +182,24 @@
     position: relative;
 }
 
+/* Дополнительные стили для profile-button (используются в других местах) */
 .profile-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: #ffd700;
-    border: none;
-    font-size: 1rem;
+    width: auto;
+    height: auto;
+    border-radius: 20px;
+    background-color: rgba(0, 123, 255, 0.8);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    padding: 0;
+    padding: 8px 16px;
+    min-width: 140px;
 }
 
 .profile-button:hover {
@@ -182,6 +280,7 @@
     gap: 15px;
 }
 
+/* Дополнительные стили для logout-button (используются в других местах) */
 .logout-button {
     background: transparent;
     border: none;
@@ -525,5 +624,99 @@ input[type="number"]::-webkit-inner-spin-button {
 
     .form-actions {
         flex-direction: column;
+    }
+}
+
+/* Корзина заказов */
+.cart-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.cart-link:hover {
+    background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.cart-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+/* Навигационные ссылки */
+.nav-link {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.nav-link:hover {
+    background: #f8f9fa;
+    color: #007bff;
+}
+
+/* Адаптивность для корзины */
+@media (max-width: 768px) {
+    .cart-link {
+        width: 36px;
+        height: 36px;
+        margin-right: 0.5rem;
+    }
+    
+    .cart-counter {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+    }
+    
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-link {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .cart-counter {
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+    }
+    
+    .nav-link {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
     }
 }

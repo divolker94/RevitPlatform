@@ -120,10 +120,14 @@
     background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
 }
 
+.family-meta {
+    margin: 0 0 8px 0;
+}
+
 .family-type {
     color: #3498db;
     font-size: 0.75rem;
-    margin: 0 auto 0.3rem;
+    margin: 0 0 4px 0;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -133,6 +137,15 @@
     display: block;
     text-align: center;
     width: fit-content;
+}
+
+.family-manufacturer {
+    color: #495057;
+    font-size: 0.75rem;
+    margin: 0;
+    font-weight: 400;
+    font-style: italic;
+    text-align: center;
 }
 
 /* Компактная компоновка */
@@ -269,5 +282,57 @@
     .family-title-text {
         font-size: 0.9rem;
         letter-spacing: 0.1px;
+    }
+}
+
+/* Стили для кнопок действий */
+.family-actions {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(52, 152, 219, 0.1);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.detail-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
+}
+
+.detail-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.detail-btn svg {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .family-actions {
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .detail-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        min-width: auto;
     }
 }

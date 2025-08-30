@@ -92,7 +92,7 @@ function ArchitecturalProjectsCarousel() {
                                     <Link to={`/architectural-projects/${project.id}`} className="project-link">
                                         <div className="project-image">
                                             <img 
-                                                src={project.image || '/images/catalog/default-project.jpg'} 
+                                                src={project.image_main ? `/images/catalog/${project.image_main}` : '/images/catalog/default-project.jpg'} 
                                                 alt={project.name}
                                                 onError={(e) => {
                                                     e.target.src = '/images/catalog/default-project.jpg';

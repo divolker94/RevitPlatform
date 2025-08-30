@@ -3,11 +3,25 @@ from django.utils.translation import gettext_lazy as _
 from accounts.models import User
 
 class Post(models.Model):
+    CATEGORY_CHOICES = [
+        ('news', 'Новости'),
+        ('tips', 'Советы'),
+        ('technology', 'Технологии'),
+        ('training', 'Обучение'),
+    ]
+    
     title = models.CharField(
         _('Заголовок'),
         max_length=200
     )
     content = models.TextField(_('Содержание'))
+    preview = models.TextField(_('Превью'), max_length=500, blank=True)
+    category = models.CharField(
+        _('Категория'),
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='news'
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -55,6 +69,20 @@ class Comment(models.Model):
         _('Создано'),
         auto_now_add=True
     )
+    updated_at = models.DateTimeField(
+        _('Обновлено'),
+        auto_now=True
+    )
+    likes = models.ManyToManyField(
+        User,
+        related_name='liked_comments',
+        verbose_name=_('Лайки'),
+        blank=True
+    )
+    is_edited = models.BooleanField(
+        _('Отредактировано'),
+        default=False
+    )
 
     class Meta:
         verbose_name = _('Комментарий')
@@ -63,3 +91,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author.username} - {self.post.title}"
+
+    def get_likes_count(self):
+        return self.likes.count()
+
+    def is_liked_by_user(self, user):
+        if user.is_authenticated:
+            return self.likes.filter(id=user.id).exists()
+        return False

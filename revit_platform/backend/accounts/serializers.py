@@ -15,8 +15,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'password', 're_password',
-            'user_type', 'first_name', 'last_name', 'avatar'
+            'user_type', 'user_role', 'first_name', 'last_name', 'avatar'
         ]
+        read_only_fields = ['id', 'avatar', 'user_role']
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'required': True},
@@ -59,5 +60,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'user_type', 'avatar'
+            'first_name', 'last_name', 'user_type', 'user_role', 'avatar'
         ]
+        read_only_fields = ['avatar']

@@ -1,35 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaUser, FaEdit, FaSave, FaTimes, FaCamera, FaTrash } from 'react-icons/fa';
+import SpecialistProfile from './profiles/SpecialistProfile';
+import LegalEntityProfile from './profiles/LegalEntityProfile';
+import IndividualProfile from './profiles/IndividualProfile';
 import './Profile.css';
-import { FaUser, FaEdit, FaSave, FaTimes, FaCamera, FaBuilding, FaIdCard } from 'react-icons/fa';
 
 function Profile() {
-    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+    const [userData, setUserData] = useState(null);
     const [profileData, setProfileData] = useState({});
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [avatar, setAvatar] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [avatarLoading, setAvatarLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const navigate = useNavigate();
 
     useEffect(() => {
         loadUserProfile();
     }, []);
 
     const loadUserProfile = async () => {
-        try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                navigate('/login');
-                return;
-            }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
 
-            // Загружаем данные пользователя
-            const userResponse = await fetch('http://localhost:8000/api/auth/users/me/', {
+        try {
+            const userResponse = await fetch('http://localhost:8000/api/accounts/users/me/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -38,681 +36,301 @@ function Profile() {
 
             if (userResponse.ok) {
                 const userData = await userResponse.json();
-                setUser(userData);
-                
-                // Устанавливаем аватар из данных пользователя
-                if (userData.avatar) {
-                    setAvatarPreview(`http://localhost:8000${userData.avatar}`);
-                } else {
-                    setAvatarPreview(null);
-                }
+                console.log('Данные пользователя:', userData);
+                console.log('user_type:', userData.user_type);
+                console.log('user_role:', userData.user_role);
+                setUserData(userData);
 
                 // Загружаем профиль в зависимости от типа пользователя
                 if (userData.user_type === 'specialist') {
-                    await loadSpecialistProfile(token);
-                } else if (userData.user_type === 'legal') {
-                    await loadLegalEntityProfile(token);
-                } else if (userData.user_type === 'individual') {
-                    await loadIndividualProfile(token);
+                    await loadSpecialistProfile(userData);
+                } else if (userData.user_type === 'legal' || userData.user_type === 'individual') {
+                    // Для юридических и физических лиц используем только данные пользователя
+                    console.log('Используем данные пользователя для', userData.user_type);
+                    setProfileData(userData);
                 }
+
+                // Загружаем аватар
+                if (userData.avatar) {
+                    setAvatarPreview(`http://localhost:8000${userData.avatar}`);
+                }
+            } else {
+                console.error('Ошибка загрузки профиля:', userResponse.status);
             }
         } catch (error) {
-            console.error('Error loading profile:', error);
-            setError('Ошибка при загрузке профиля');
+            console.error('Ошибка загрузки профиля:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const loadSpecialistProfile = async (token) => {
+    const loadSpecialistProfile = async (userData) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:8000/api/specialists/me/', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
             });
+
             if (response.ok) {
-                const data = await response.json();
-                setProfileData(data);
+                const profileData = await response.json();
+                setProfileData({ ...userData, ...profileData });
+            } else {
+                // Если профиль не найден, используем данные пользователя
+                setProfileData(userData);
             }
         } catch (error) {
-            console.error('Error loading specialist profile:', error);
+            console.error('Ошибка загрузки профиля специалиста:', error);
+            setProfileData(userData);
         }
     };
 
-    const loadLegalEntityProfile = async (token) => {
+    const loadLegalEntityProfile = async (userData) => {
         try {
-            const response = await fetch('http://localhost:8000/api/clients/legal/', {
+            const token = localStorage.getItem('token');
+            console.log('Загружаем профиль юр. лица для пользователя:', userData.id);
+            console.log('Токен:', token ? 'Есть' : 'Нет');
+            
+            const response = await fetch(`http://localhost:8000/api/clients/${userData.id}/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
             });
+
+            console.log('Ответ от API клиентов:', response.status, response.statusText);
+            
             if (response.ok) {
-                const data = await response.json();
-                if (data.length > 0) {
-                    setProfileData(data[0]);
-                }
+                const profileData = await response.json();
+                console.log('Данные профиля юр. лица:', profileData);
+                setProfileData({ ...userData, ...profileData });
+            } else {
+                console.log('Профиль юр. лица не найден, используем данные пользователя');
+                setProfileData(userData);
             }
         } catch (error) {
-            console.error('Error loading legal entity profile:', error);
+            console.error('Ошибка загрузки профиля юр. лица:', error);
+            setProfileData(userData);
         }
     };
 
-    const loadIndividualProfile = async (token) => {
+    const loadIndividualProfile = async (userData) => {
         try {
-            const response = await fetch('http://localhost:8000/api/clients/individuals/', {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:8000/api/clients/${userData.id}/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
             });
+
             if (response.ok) {
-                const data = await response.json();
-                if (data.length > 0) {
-                    setProfileData(data[0]);
-                }
+                const profileData = await response.json();
+                setProfileData({ ...userData, ...profileData });
+            } else {
+                setProfileData(userData);
             }
         } catch (error) {
-            console.error('Error loading individual profile:', error);
+            console.error('Ошибка загрузки профиля физ. лица:', error);
+            setProfileData(userData);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!isEditing) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            let response;
+
+            if (userData.user_type === 'specialist') {
+                response = await fetch('http://localhost:8000/api/specialists/me/', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profileData),
+                });
+            } else {
+                response = await fetch(`http://localhost:8000/api/clients/${userData.id}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profileData),
+                });
+            }
+
+            if (response.ok) {
+                setIsEditing(false);
+                await loadUserProfile(); // Перезагружаем профиль
+            } else {
+                console.error('Ошибка сохранения:', response.status);
+            }
+        } catch (error) {
+            console.error('Ошибка сохранения:', error);
         }
     };
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Проверяем размер файла (максимум 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError('Размер файла не должен превышать 5MB');
-                return;
-            }
-            
-            // Проверяем тип файла
-            if (!file.type.startsWith('image/')) {
-                setError('Пожалуйста, выберите изображение');
-                return;
-            }
-            
             setAvatar(file);
-            setError(''); // Очищаем предыдущие ошибки
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setAvatarPreview(reader.result);
-            };
-            reader.readAsDataURL(file);
+            setAvatarPreview(URL.createObjectURL(file));
         }
     };
 
-    const handleRemoveAvatar = () => {
-        setAvatar('remove'); // Специальное значение для удаления
-        setAvatarPreview(null);
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setProfileData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSave = async () => {
-        setSaving(true);
-        setError('');
-        setSuccess('');
+    const handleAvatarUpload = async () => {
+        if (!avatar) return;
 
         try {
-            const token = localStorage.getItem('access_token');
-            let response;
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('avatar', avatar);
 
-            // Сначала обновляем аватар пользователя, если он был изменен
-            if (avatar) {
-                setAvatarLoading(true);
-                let avatarResponse;
-                
-                try {
-                    if (avatar === 'remove') {
-                        // Удаляем аватар
-                        avatarResponse = await fetch('http://localhost:8000/api/auth/users/me/', {
-                            method: 'PATCH',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ avatar: null }),
-                        });
-                    } else {
-                        // Загружаем новый аватар
-                        const formData = new FormData();
-                        formData.append('avatar', avatar);
-                        
-                        avatarResponse = await fetch('http://localhost:8000/api/auth/users/me/', {
-                            method: 'PATCH',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                            },
-                            body: formData,
-                        });
-                    }
-                
-                if (avatarResponse.ok) {
-                    const updatedUser = await avatarResponse.json();
-                    if (updatedUser.avatar) {
-                        setAvatarPreview(`http://localhost:8000${updatedUser.avatar}`);
-                        setUser(prev => ({ ...prev, avatar: updatedUser.avatar }));
-                    } else {
-                        setAvatarPreview(null);
-                        setUser(prev => ({ ...prev, avatar: null }));
-                    }
-                    setAvatar(null); // Сбрасываем локальный файл
-                    setSuccess(avatar === 'remove' ? 'Аватар успешно удален!' : 'Аватар успешно обновлен!');
-                } else {
-                    const avatarError = await avatarResponse.text();
-                    console.error('Error updating avatar:', avatarError);
-                    setError('Ошибка при обновлении аватара: ' + avatarError);
-                    return; // Прерываем выполнение, если аватар не удалось обновить
-                }
-                } catch (error) {
-                    console.error('Error updating avatar:', error);
-                    setError('Ошибка при обновлении аватара: ' + error.message);
-                    return;
-                } finally {
-                    setAvatarLoading(false);
-                }
-            }
-
-            // Затем обновляем профиль
-            if (user.user_type === 'specialist') {
-                response = await fetch('http://localhost:8000/api/specialists/me/', {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(profileData),
-                });
-            } else if (user.user_type === 'legal') {
-                response = await fetch(`http://localhost:8000/api/clients/legal/${profileData.id}/`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(profileData),
-                });
-            } else if (user.user_type === 'individual') {
-                response = await fetch(`http://localhost:8000/api/clients/individuals/${profileData.id}/`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(profileData),
-                });
-            }
+            const response = await fetch(`http://localhost:8000/api/accounts/users/me/`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
+            });
 
             if (response.ok) {
-                setSuccess('Профиль успешно обновлен!');
-                setIsEditing(false);
-            } else {
-                const errorData = await response.json();
-                setError('Ошибка при обновлении профиля: ' + JSON.stringify(errorData));
+                const updatedUser = await response.json();
+                setUserData(updatedUser);
+                setAvatar(null);
+                setAvatarPreview(null);
+                await loadUserProfile();
             }
         } catch (error) {
-            console.error('Error saving profile:', error);
-            setError('Ошибка при сохранении профиля');
-        } finally {
-            setSaving(false);
+            console.error('Ошибка загрузки аватара:', error);
         }
     };
 
-    const handleCancel = () => {
-        setIsEditing(false);
-        loadUserProfile(); // Перезагружаем исходные данные
+    const renderProfileContent = () => {
+        if (!userData) return null;
+
+        switch (userData.user_type) {
+            case 'specialist':
+                return (
+                    <SpecialistProfile
+                        profileData={profileData}
+                        setProfileData={setProfileData}
+                        isEditing={isEditing}
+                        user={userData}
+                    />
+                );
+            case 'legal':
+                return (
+                    <LegalEntityProfile
+                        profileData={profileData}
+                        setProfileData={setProfileData}
+                        isEditing={isEditing}
+                        user={userData}
+                    />
+                );
+            case 'individual':
+                return (
+                    <IndividualProfile
+                        profileData={profileData}
+                        setProfileData={setProfileData}
+                        isEditing={isEditing}
+                        user={userData}
+                    />
+                );
+            default:
+                return <div>Неизвестный тип пользователя</div>;
+        }
     };
 
     if (loading) {
-        return (
-            <div className="profile-container">
-                <div className="profile-loading">
-                    <div className="spinner"></div>
-                    <p>Загрузка профиля...</p>
-                </div>
-            </div>
-        );
+        return <div className="loading">Загрузка профиля...</div>;
     }
 
-    if (!user) {
-        return (
-            <div className="profile-container">
-                <div className="profile-error">
-                    <p>Пользователь не найден</p>
-                </div>
-            </div>
-        );
+    if (!userData) {
+        return <div className="error">Ошибка загрузки профиля</div>;
     }
-
-    const renderProfileFields = () => {
-        if (user.user_type === 'specialist') {
-            return (
-                <>
-                    <div className="profile-section">
-                        <h4><FaUser /> Личная информация</h4>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Имя</label>
-                                <input
-                                    type="text"
-                                    name="first_name"
-                                    value={profileData.first_name || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    className="form-control"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Фамилия</label>
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    value={profileData.last_name || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    className="form-control"
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label>Телефон</label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={profileData.phone || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="profile-section">
-                        <h4><FaBuilding /> Профессиональная информация</h4>
-                        <div className="form-group">
-                            <label>Специализация</label>
-                            <input
-                                type="text"
-                                name="specialization"
-                                value={profileData.specialization || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Опыт работы (лет)</label>
-                            <input
-                                type="number"
-                                name="experience"
-                                value={profileData.experience || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Часовая ставка (₽)</label>
-                            <input
-                                type="number"
-                                name="hourly_rate"
-                                value={profileData.hourly_rate || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>О себе</label>
-                            <textarea
-                                name="about"
-                                value={profileData.about || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                                rows="4"
-                            />
-                        </div>
-                    </div>
-                </>
-            );
-        } else if (user.user_type === 'legal') {
-            return (
-                <>
-                    <div className="profile-section">
-                        <h4><FaBuilding /> Информация об организации</h4>
-                        <div className="form-group">
-                            <label>Наименование организации</label>
-                            <input
-                                type="text"
-                                name="company_name"
-                                value={profileData.company_name || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>ИНН</label>
-                            <input
-                                type="text"
-                                name="inn"
-                                value={profileData.inn || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>КПП</label>
-                            <input
-                                type="text"
-                                name="kpp"
-                                value={profileData.kpp || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>ОГРН</label>
-                            <input
-                                type="text"
-                                name="ogrn"
-                                value={profileData.ogrn || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="profile-section">
-                        <h4><FaUser /> Контактная информация</h4>
-                        <div className="form-group">
-                            <label>Контактное лицо</label>
-                            <input
-                                type="text"
-                                name="contact_person"
-                                value={profileData.contact_person || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Телефон</label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={profileData.phone || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={profileData.email || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="profile-section">
-                        <h4><FaIdCard /> Банковские реквизиты</h4>
-                        <div className="form-group">
-                            <label>БИК</label>
-                            <input
-                                type="text"
-                                name="bik"
-                                value={profileData.bik || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Номер счета</label>
-                            <input
-                                type="text"
-                                name="account_number"
-                                value={profileData.account_number || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Название банка</label>
-                            <input
-                                type="text"
-                                name="bank_name"
-                                value={profileData.bank_name || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                    </div>
-                </>
-            );
-        } else if (user.user_type === 'individual') {
-            return (
-                <>
-                    <div className="profile-section">
-                        <h4><FaUser /> Личная информация</h4>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Имя</label>
-                                <input
-                                    type="text"
-                                    name="first_name"
-                                    value={profileData.first_name || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    className="form-control"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Фамилия</label>
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    value={profileData.last_name || ''}
-                                    onChange={handleInputChange}
-                                    disabled={!isEditing}
-                                    className="form-control"
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label>Отчество</label>
-                            <input
-                                type="text"
-                                name="middle_name"
-                                value={profileData.middle_name || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Телефон</label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={profileData.phone || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Дата рождения</label>
-                            <input
-                                type="date"
-                                name="birth_date"
-                                value={profileData.birth_date || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Адрес</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={profileData.address || ''}
-                                onChange={handleInputChange}
-                                disabled={!isEditing}
-                                className="form-control"
-                            />
-                        </div>
-                    </div>
-                </>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className="profile-container">
             <div className="profile-header">
-                <h1>Мой профиль</h1>
-                <p>Управляйте своими личными данными и настройками</p>
+                <h1>Профиль пользователя</h1>
+                <div className="profile-actions">
+                    {isEditing ? (
+                        <>
+                            <button className="btn btn-success" onClick={handleSave}>
+                                <FaSave /> Сохранить
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                                <FaTimes /> Отмена
+                            </button>
+                        </>
+                    ) : (
+                        <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                            <FaEdit /> Редактировать профиль
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="profile-content">
+                {/* Боковая панель с аватаром и основной информацией */}
                 <div className="profile-sidebar">
-                    <div className="profile-avatar-section">
-                        <div className="profile-avatar">
+                    <div className="avatar-section">
+                        <div className="avatar-container">
                             {avatarPreview ? (
-                                <img 
-                                    src={avatarPreview} 
-                                    alt="Аватар" 
-                                    className="avatar-image"
-                                />
-                            ) : user.avatar ? (
-                                <img 
-                                    src={`http://localhost:8000${user.avatar}`} 
-                                    alt="Аватар" 
-                                    className="avatar-image"
-                                />
+                                <img src={avatarPreview} alt="Аватар" className="avatar" />
                             ) : (
                                 <div className="avatar-placeholder">
                                     <FaUser />
                                 </div>
                             )}
-                            {isEditing && (
-                                <>
-                                    <label className={`avatar-upload ${avatarLoading ? 'loading' : ''}`}>
-                                        <FaCamera />
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleAvatarChange}
-                                            style={{ display: 'none' }}
-                                            disabled={avatarLoading}
-                                        />
-                                    </label>
-                                    {(avatarPreview || user.avatar) && (
-                                        <button 
-                                            className="avatar-remove"
-                                            onClick={handleRemoveAvatar}
-                                            type="button"
-                                            title="Удалить аватар"
-                                            disabled={avatarLoading}
-                                        >
-                                            ×
-                                        </button>
-                                    )}
-                                </>
-                            )}
                         </div>
-                        <div className="profile-info">
-                            <h3>{user.first_name || user.email.split('@')[0]} {user.last_name || ''}</h3>
-                            <p className="user-type">{getUserTypeLabel(user.user_type)}</p>
-                            <p className="user-email">{user.email}</p>
-                        </div>
+                        
+                        {isEditing && (
+                            <div className="avatar-actions">
+                                <label className="btn btn-secondary btn-sm">
+                                    <FaCamera /> Изменить
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        style={{ display: 'none' }}
+                                    />
+                                </label>
+                                {avatar && (
+                                    <button className="btn btn-success btn-sm" onClick={handleAvatarUpload}>
+                                        <FaSave /> Загрузить
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="profile-actions">
-                        {!isEditing ? (
-                            <button 
-                                className="btn btn-primary btn-edit"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                <FaEdit /> Редактировать профиль
-                            </button>
-                        ) : (
-                            <div className="edit-actions">
-                                <button 
-                                    className="btn btn-success btn-save"
-                                    onClick={handleSave}
-                                    disabled={saving}
-                                >
-                                    <FaSave /> {saving ? 'Сохранение...' : 'Сохранить'}
-                                </button>
-                                <button 
-                                    className="btn btn-secondary btn-cancel"
-                                    onClick={handleCancel}
-                                >
-                                    <FaTimes /> Отмена
-                                </button>
+                    <div className="user-info">
+                        <h3>{profileData.first_name} {profileData.last_name}</h3>
+                        <p className="user-email">{profileData.email}</p>
+                        <div className="profile-type">
+                            {userData.user_type === 'specialist' ? 'BIM-специалист' : 
+                             userData.user_type === 'legal' ? 'Юридическое лицо' : 'Физическое лицо'}
+                        </div>
+                        {userData.user_type === 'specialist' && (
+                            <div className="specialist-type">
+                                {profileData.specialist_type === 'manager' ? 'BIM-менеджер' : 'BIM-исполнитель'}
                             </div>
                         )}
                     </div>
                 </div>
 
+                {/* Основной контент профиля */}
                 <div className="profile-main">
-                    {error && (
-                        <div className="alert alert-danger">
-                            {error}
-                        </div>
-                    )}
-                    
-                    {success && (
-                        <div className="alert alert-success">
-                            {success}
-                        </div>
-                    )}
-
-                    <div className="profile-form">
-                        {renderProfileFields()}
-                    </div>
+                    {renderProfileContent()}
                 </div>
             </div>
         </div>
     );
-}
-
-function getUserTypeLabel(userType) {
-    switch (userType) {
-        case 'specialist':
-            return 'BIM-специалист';
-        case 'legal':
-            return 'Юридическое лицо';
-        case 'individual':
-            return 'Физическое лицо';
-        default:
-            return 'Пользователь';
-    }
 }
 
 export default Profile;
