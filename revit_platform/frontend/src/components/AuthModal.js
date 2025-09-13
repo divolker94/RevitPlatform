@@ -100,7 +100,7 @@ function AuthModal({ show, onHide, onLogin }) {
 
             console.log('Вход успешен, сохраняем токены...');
 
-            localStorage.setItem('access_token', loginResponse.data.access);
+            localStorage.setItem('token', loginResponse.data.access);
             localStorage.setItem('refresh_token', loginResponse.data.refresh);
             
             // Все пользователи сразу входят в систему и попадают на главную страницу
@@ -112,7 +112,6 @@ function AuthModal({ show, onHide, onLogin }) {
             
             localStorage.setItem('username', userResponse.data.username);
             localStorage.setItem('user_data', JSON.stringify(userResponse.data));
-            localStorage.setItem('token', loginResponse.data.access);
             
             onLogin(userResponse.data.username);
             onHide();

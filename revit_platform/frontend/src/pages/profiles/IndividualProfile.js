@@ -58,58 +58,7 @@ function IndividualProfile({ profileData, setProfileData, isEditing, user }) {
                 </div>
             </div>
 
-            {/* Личная информация */}
-            <div className="section-header">
-                <FaUser className="section-icon" />
-                <h3>Личная информация</h3>
-            </div>
-            
-            <div className="profile-section">
-                <div className="section-content">
-                    {!hasDetailedProfile ? (
-                        <div className="profile-notice">
-                            <p>Детальная личная информация не заполнена.</p>
-                            <p>Для заполнения профиля обратитесь к администратору.</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Телефон</label>
-                                    <input
-                                        type="tel"
-                                        value={profileData.phone || ''}
-                                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                                        disabled={!isEditing}
-                                        placeholder="+7 (XXX) XXX-XX-XX"
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div className="form-group full-width">
-                                <label>Дата рождения</label>
-                                <input
-                                    type="date"
-                                    value={profileData.birth_date || ''}
-                                    onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
-                                    disabled={!isEditing}
-                                />
-                            </div>
-                            
-                            <div className="form-group full-width">
-                                <label>Адрес</label>
-                                <input
-                                    type="text"
-                                    value={profileData.address || ''}
-                                    onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                                    disabled={!isEditing}
-                                    placeholder="Полный адрес проживания"
-                                />
-                            </div>
-                        </>
-                    )}
-                </div>
-            </div>
+
 
             {/* Паспортные данные */}
             <div className="section-header">

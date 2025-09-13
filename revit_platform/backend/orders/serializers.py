@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory, OrderFile
+from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory, OrderFile, OrderFileComment
 from architectural_projects.models import ArchitecturalProject
 from bim_families.models import BimFamily
 
@@ -8,9 +8,18 @@ class BIMFamilyCategorySerializer(serializers.ModelSerializer):
         model = BIMFamilyCategory
         fields = '__all__'
 
+class OrderFileCommentSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    
+    class Meta:
+        model = OrderFileComment
+        fields = '__all__'
+        read_only_fields = ('author', 'created_at')
+
 class OrderFileSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
-    filename = serializers.CharField(source='filename', read_only=True)
+    filename = serializers.CharField(read_only=True)
+    comments = OrderFileCommentSerializer(many=True, read_only=True)
     
     class Meta:
         model = OrderFile
@@ -63,7 +72,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
-        fields = ['title', 'description', 'requirements', 'work_type', 'customer_area', 'items']
+        fields = ['id', 'title', 'description', 'requirements', 'work_type', 'customer_area', 'items']
     
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])

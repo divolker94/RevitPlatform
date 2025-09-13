@@ -20,7 +20,7 @@ function Home() {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const response = await fetch('http://localhost:8000/api/auth/users/me/', {
+                    const response = await fetch('http://localhost:8000/api/accounts/users/me/', {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',

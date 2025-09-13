@@ -51,38 +51,11 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                         />
                     </div>
                     
-                    <div className="form-group full-width">
-                        <label>Тип специалиста</label>
-                        <div className="specialist-type-badge">
-                            <FaCog className="badge-icon" />
-                            {getSpecialistTypeText(profileData.specialist_type)}
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 
-            {/* Личная информация */}
-            <div className="section-header">
-                <FaUser className="section-icon" />
-                <h3>Личная информация</h3>
-            </div>
-            
-            <div className="profile-section">
-                <div className="section-content">
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Телефон</label>
-                            <input
-                                type="tel"
-                                value={profileData.phone || ''}
-                                onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                                disabled={!isEditing}
-                                placeholder="+7 (XXX) XXX-XX-XX"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             {/* Профессиональная информация */}
             <div className="section-header">
@@ -94,37 +67,6 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                 <div className="section-content">
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Тип специалиста</label>
-                            <div className="specialist-type-badge">
-                                <FaCog className="badge-icon" />
-                                {getSpecialistTypeText(profileData.specialist_type)}
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label>Специализация</label>
-                            <input
-                                type="text"
-                                value={profileData.specialization || ''}
-                                onChange={(e) => setProfileData({...profileData, specialization: e.target.value})}
-                                disabled={!isEditing}
-                                placeholder="Например: Архитектурное проектирование, BIM-моделирование"
-                            />
-                        </div>
-                    </div>
-                    
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Опыт работы (лет)</label>
-                            <input
-                                type="number"
-                                value={profileData.experience || ''}
-                                onChange={(e) => setProfileData({...profileData, experience: e.target.value})}
-                                disabled={!isEditing}
-                                min="0"
-                                max="50"
-                            />
-                        </div>
-                        <div className="form-group">
                             <label>Часовая ставка (₽)</label>
                             <input
                                 type="number"
@@ -133,6 +75,16 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                                 disabled={!isEditing}
                                 min="0"
                                 step="100"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Доступность</label>
+                            <input
+                                type="text"
+                                value={profileData.availability || ''}
+                                onChange={(e) => setProfileData({...profileData, availability: e.target.value})}
+                                disabled={!isEditing}
+                                placeholder="Например: Полная занятость, Частичная занятость"
                             />
                         </div>
                     </div>
@@ -150,16 +102,6 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                     
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Доступность</label>
-                            <input
-                                type="text"
-                                value={profileData.availability || ''}
-                                onChange={(e) => setProfileData({...profileData, availability: e.target.value})}
-                                disabled={!isEditing}
-                                placeholder="Например: Полная занятость, Частичная занятость"
-                            />
-                        </div>
-                        <div className="form-group">
                             <label>Портфолио (ссылка)</label>
                             <input
                                 type="url"
@@ -169,9 +111,7 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                                 placeholder="https://example.com/portfolio"
                             />
                         </div>
-                    </div>
-                    
-                    <div className="form-group full-width">
+                        <div className="form-group">
                         <label>Сертификаты</label>
                         <textarea
                             value={profileData.certificates || ''}
@@ -181,6 +121,9 @@ function SpecialistProfile({ profileData, setProfileData, isEditing, user }) {
                             placeholder="Укажите ваши сертификаты, дипломы и квалификации"
                         />
                     </div>
+                    </div>
+                    
+
                 </div>
             </div>
         </>

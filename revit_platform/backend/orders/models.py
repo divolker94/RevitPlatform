@@ -240,6 +240,22 @@ class OrderFile(models.Model):
         """Получить имя файла без пути"""
         return os.path.basename(self.file.name)
 
+
+class OrderFileComment(models.Model):
+    """Комментарии к файлам заказов"""
+    order_file = models.ForeignKey(OrderFile, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='file_comments')
+    content = models.TextField(verbose_name='Текст комментария')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Комментарий к файлу'
+        verbose_name_plural = 'Комментарии к файлам'
+    
+    def __str__(self):
+        return f"Комментарий от {self.author.username} к файлу {self.order_file.title}"
+
 class BIMFamilyCategory(models.Model):
     """Категории для BIM-семейств"""
     name = models.CharField(max_length=100, unique=True)

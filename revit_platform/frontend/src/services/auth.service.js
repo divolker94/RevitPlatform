@@ -4,12 +4,12 @@ const API_URL = 'http://localhost:8000/api/auth/jwt';
 
 class AuthService {
 	getToken() {
-		return localStorage.getItem('access_token') || null;
+		return localStorage.getItem('token') || null;
 	}
 
 	setToken(token) {
 		if (token) {
-			localStorage.setItem('access_token', token);
+			localStorage.setItem('token', token);
 		}
 	}
 
@@ -47,7 +47,7 @@ class AuthService {
 	}
 
 	logout() {
-		localStorage.removeItem('access_token');
+		localStorage.removeItem('token');
 		localStorage.removeItem('refresh_token');
 	}
 

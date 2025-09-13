@@ -6,11 +6,11 @@ from django.utils import timezone
 from decimal import Decimal
 import uuid
 
-from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory
+from .models import Order, OrderItem, OrderDocument, OrderPayment, BIMFamilyCategory, OrderFile, OrderFileComment
 from .serializers import (
     OrderSerializer, OrderCreateSerializer, OrderItemSerializer,
     OrderDocumentSerializer, OrderPaymentSerializer, BIMFamilyCategorySerializer,
-    AddToOrderSerializer, OrderCalculationSerializer
+    AddToOrderSerializer, OrderCalculationSerializer, OrderFileSerializer, OrderFileCommentSerializer
 )
 from architectural_projects.models import ArchitecturalProject
 from bim_families.models import BimFamily
@@ -55,11 +55,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Генерируем уникальный номер заказа
         order_number = f"ORD-{uuid.uuid4().hex[:8].upper()}"
-        serializer.save(
+        order = serializer.save(
             customer=self.request.user,
             order_number=order_number,
             work_type_multiplier=self._get_work_type_multiplier(serializer.validated_data.get('work_type', 'new_construction'))
         )
+        
+        # Рассчитываем аванс (50% от итоговой стоимости)
+        if order.final_cost > 0:
+            order.advance_paid = order.final_cost * Decimal('0.5')
+            order.save()
     
     def _get_work_type_multiplier(self, work_type):
         """Получаем коэффициент типа работ"""
@@ -366,7 +371,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
         
         # Создаем файл заказа
-        from .models import OrderFile
         order_file = OrderFile.objects.create(
             order=order,
             file=file_obj,
@@ -381,7 +385,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.order_status = 'review'
             order.save()
         
-        from .serializers import OrderFileSerializer
         serializer = OrderFileSerializer(order_file)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -397,29 +400,33 @@ class OrderViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Проверяем, что пользователь является заказчиком
-        if order.customer != request.user:
+        # Проверяем права доступа
+        user = request.user
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        
+        # Только заказчик или BIM-менеджер могут добавлять комментарии
+        if not is_manager and order.customer != user:
             return Response(
-                {'detail': 'Только заказчик может добавлять комментарии'}, 
+                {'detail': 'Нет прав для добавления комментариев к этому заказу'}, 
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Проверяем, что заказ в статусе "на согласовании"
-        if order.order_status != 'review':
-            return Response(
-                {'detail': 'Комментарии можно добавлять только к заказам на согласовании'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Сохраняем комментарий в зависимости от роли пользователя
+        if is_manager:
+            order.manager_comment = comment_text
+            order.manager_comment_date = timezone.now()
+        else:
+            order.customer_comment = comment_text
+            order.comment_date = timezone.now()
         
-        # Сохраняем комментарий в базе данных
-        order.customer_comment = comment_text
-        order.comment_date = timezone.now()
         order.save()
         
         return Response({
             'detail': 'Комментарий добавлен',
             'comment': comment_text,
-            'comment_date': order.comment_date
+            'comment_date': order.comment_date if not is_manager else order.manager_comment_date
         })
 
     @action(detail=True, methods=['post'])
@@ -478,6 +485,62 @@ class OrderViewSet(viewsets.ModelViewSet):
             'order_status': order.order_status
         })
 
+    @action(detail=True, methods=['get'])
+    def files(self, request, pk=None):
+        """Получить файлы заказа"""
+        order = self.get_object()
+        
+        # Проверяем права доступа
+        user = request.user
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        
+        # Только заказчик или BIM-менеджер могут видеть файлы
+        if not is_manager and order.customer != user:
+            return Response(
+                {'detail': 'Нет прав для просмотра файлов этого заказа'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Получаем файлы заказа
+        files = OrderFile.objects.filter(order=order)
+        serializer = OrderFileSerializer(files, many=True, context={'request': request})
+        
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def process_payment(self, request, pk=None):
+        """Обработка оплаты заказа"""
+        order = self.get_object()
+        
+        # Проверяем, что пользователь является заказчиком
+        if order.customer != request.user:
+            return Response(
+                {'detail': 'Только заказчик может оплачивать заказ'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что заказ в статусе "отправлен" или "в работе"
+        if order.order_status not in ['submitted', 'in_progress']:
+            return Response(
+                {'detail': 'Заказ можно оплачивать только в статусе "Отправлен" или "В работе"'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        payment_method = request.data.get('payment_method', 'card')
+        
+        # Здесь должна быть логика обработки платежа
+        # Для демонстрации просто меняем статус оплаты
+        order.payment_status = 'paid'
+        order.save()
+        
+        return Response({
+            'detail': 'Оплата прошла успешно',
+            'payment_status': order.payment_status,
+            'order_status': order.order_status
+        })
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     """API для элементов заказа"""
@@ -523,3 +586,86 @@ class OrderPaymentViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Платеж обработан'}, status=status.HTTP_200_OK)
         
         return Response({'error': 'Необходим ID транзакции'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderFileViewSet(viewsets.ModelViewSet):
+    """API для файлов заказов"""
+    queryset = OrderFile.objects.all()
+    serializer_class = OrderFileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        # Проверяем, является ли пользователь BIM-менеджером
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        
+        if is_manager:
+            # BIM-менеджер видит все файлы
+            return OrderFile.objects.all()
+        else:
+            # Клиент видит только файлы своих заказов
+            return OrderFile.objects.filter(order__customer=user)
+    
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def upload_file(self, request, pk=None):
+        """Загрузить файл для заказа"""
+        order = Order.objects.get(id=pk)
+        
+        # Проверяем права доступа
+        user = request.user
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        
+        if not is_manager and order.customer != user:
+            return Response(
+                {'detail': 'Нет прав для загрузки файлов в этот заказ'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Создаем файл
+        file_data = request.data
+        file_data['order'] = order.id
+        file_data['uploaded_by'] = user.id
+        
+        serializer = self.get_serializer(data=file_data)
+        if serializer.is_valid():
+            serializer.save()
+            
+            # Если файл загружает BIM-менеджер, меняем статус заказа на "На согласовании"
+            if is_manager and order.order_status == 'in_progress':
+                order.order_status = 'review'
+                order.save()
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderFileCommentViewSet(viewsets.ModelViewSet):
+    """API для комментариев к файлам заказов"""
+    queryset = OrderFileComment.objects.all()
+    serializer_class = OrderFileCommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        # Проверяем, является ли пользователь BIM-менеджером
+        is_manager = False
+        if hasattr(user, 'specialist_profile'):
+            is_manager = user.specialist_profile.specialist_type == 'manager'
+        
+        if is_manager:
+            # BIM-менеджер видит все комментарии
+            return OrderFileComment.objects.all()
+        else:
+            # Клиент видит только комментарии к файлам своих заказов
+            return OrderFileComment.objects.filter(order_file__order__customer=user)
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
