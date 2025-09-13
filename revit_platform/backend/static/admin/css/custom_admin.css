@@ -1,0 +1,55 @@
+/* Стили для разных типов пользователей */
+tr.legal {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+tr.individual {
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+tr.specialist {
+    background-color: rgba(155, 89, 182, 0.1);
+}
+
+/* Улучшаем читаемость полей */
+.field-get_full_name_or_company {
+    font-weight: 500;
+}
+
+/* Стили для JSON полей */
+.jsoneditor {
+    max-width: 800px;
+}
+
+/* Улучшаем отображение документов */
+.file-upload p {
+    margin-bottom: 5px;
+}
+
+.file-upload a {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    text-decoration: none;
+}
+
+/* Стили для вкладок с разными типами пользователей */
+.submit-row {
+    margin-top: 20px;
+}
+
+/* Улучшаем отображение дат */
+.field-date_joined,
+.field-last_login {
+    white-space: nowrap;
+}
+
+/* Стили для статусов */
+.field-is_active .true {
+    color: #27ae60;
+}
+
+.field-is_active .false {
+    color: #c0392b;
+}

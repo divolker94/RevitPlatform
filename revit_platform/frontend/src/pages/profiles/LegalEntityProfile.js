@@ -73,28 +73,7 @@ function LegalEntityProfile({ profileData, setProfileData, isEditing, user }) {
                         </div>
                     ) : (
                         <>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Название организации</label>
-                                    <input
-                                        type="text"
-                                        value={profileData.company_name || ''}
-                                        onChange={(e) => setProfileData({...profileData, company_name: e.target.value})}
-                                        disabled={!isEditing}
-                                        placeholder="Полное название организации"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>ИНН</label>
-                                    <input
-                                        type="text"
-                                        value={profileData.inn || ''}
-                                        onChange={(e) => setProfileData({...profileData, inn: e.target.value})}
-                                        disabled={!isEditing}
-                                        placeholder="10 или 12 цифр"
-                                    />
-                                </div>
-                            </div>
+
                             
                             <div className="form-row">
                                 <div className="form-group">

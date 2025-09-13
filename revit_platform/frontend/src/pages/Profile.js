@@ -321,6 +321,120 @@ function Profile() {
                                 {profileData.specialist_type === 'manager' ? 'BIM-менеджер' : 'BIM-исполнитель'}
                             </div>
                         )}
+                        
+                        {/* Личная информация в боковой панели */}
+                        <div className="personal-info-sidebar">
+                            <div className="info-item">
+                                <label>Телефон:</label>
+                                {isEditing ? (
+                                    <input
+                                        type="tel"
+                                        value={profileData.phone || ''}
+                                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                                        placeholder="+7 (XXX) XXX-XX-XX"
+                                        className="sidebar-input"
+                                    />
+                                ) : (
+                                    <span>{profileData.phone || 'Не указан'}</span>
+                                )}
+                            </div>
+                            {userData.user_type === 'specialist' && (
+                                <>
+                                    <div className="info-item">
+                                        <label>Опыт работы:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="number"
+                                                value={profileData.experience_years || profileData.experience || ''}
+                                                onChange={(e) => setProfileData({...profileData, experience_years: e.target.value})}
+                                                min="0"
+                                                max="50"
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.experience_years || profileData.experience || 'Не указан'} лет</span>
+                                        )}
+                                    </div>
+                                    <div className="info-item">
+                                        <label>Специализация:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                value={profileData.specialization || ''}
+                                                onChange={(e) => setProfileData({...profileData, specialization: e.target.value})}
+                                                placeholder="Например: Архитектурное проектирование"
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.specialization || 'Не указана'}</span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                            {userData.user_type === 'legal' && (
+                                <>
+                                    <div className="info-item">
+                                        <label>Название компании:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                value={profileData.company_name || ''}
+                                                onChange={(e) => setProfileData({...profileData, company_name: e.target.value})}
+                                                placeholder="Название компании"
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.company_name || 'Не указано'}</span>
+                                        )}
+                                    </div>
+                                    <div className="info-item">
+                                        <label>ИНН:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                value={profileData.inn || ''}
+                                                onChange={(e) => setProfileData({...profileData, inn: e.target.value})}
+                                                placeholder="ИНН"
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.inn || 'Не указан'}</span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                            {userData.user_type === 'individual' && (
+                                <>
+                                    <div className="info-item">
+                                        <label>Дата рождения:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="date"
+                                                value={profileData.birth_date || ''}
+                                                onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.birth_date || 'Не указана'}</span>
+                                        )}
+                                    </div>
+                                    <div className="info-item">
+                                        <label>Адрес:</label>
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                value={profileData.address || ''}
+                                                onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                                                placeholder="Адрес"
+                                                className="sidebar-input"
+                                            />
+                                        ) : (
+                                            <span>{profileData.address || 'Не указан'}</span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 

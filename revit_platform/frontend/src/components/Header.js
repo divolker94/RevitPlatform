@@ -97,8 +97,10 @@ function Header() {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        localStorage.removeItem('user_data');
         setIsAuthenticated(false);
         setUsername('');
+        setUserData({});
         navigate('/');
     };
 
